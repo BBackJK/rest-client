@@ -1,0 +1,65 @@
+plugins {
+    id 'java'
+}
+
+group 'bback.module'
+version '1.0-SNAPSHOT'
+
+ext {
+    lombokVersion = '1.18.28'
+    slf4jVersion = '1.7.36'
+    springCoreVersion = '5.3.29'
+    springBootVersion = '2.7.14'
+    jacksonCoreVersion = '2.13.5'
+    apacheHttpClientVersion = '4.5.14'
+    unirestVersion = '3.14.5'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation "org.slf4j:slf4j-simple:${slf4jVersion}"
+
+    // spring
+    implementation "org.springframework:spring-core:${springCoreVersion}"
+    implementation "org.springframework:spring-web:${springCoreVersion}"
+    implementation "org.springframework:spring-context:${springCoreVersion}"
+    implementation "org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}"
+
+
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonCoreVersion}"
+
+    implementation "org.apache.httpcomponents:httpclient:${apacheHttpClientVersion}"
+    implementation "com.konghq:unirest-java:${unirestVersion}"
+
+
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'bback.module.Main'
+    }
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+task("re-jar") {
+    doFirst { println("clean re-jar...") }
+    dependsOn clean
+    dependsOn jar
+    doLast { println("build re-jar...") }
+}
+
+test {
+    useJUnitPlatform()
+}
