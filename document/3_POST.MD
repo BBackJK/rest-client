@@ -16,12 +16,12 @@ public interface ApiTestClient {
 
 ## 2. PathVariable
 
-[2_GET.MD](https://github.com/BBackJK/rest-client/tree/main/document/2_GET.MD)
+[2_GET.MD](https://github.com/BBackJK/rest-client/tree/main/document/2_GET.MD#2-pathvariable)
 와 동일합니다.
 
 ## 3. Header
 
-[2_GET.MD](https://github.com/BBackJK/rest-client/tree/main/document/2_GET.MD)
+[2_GET.MD](https://github.com/BBackJK/rest-client/tree/main/document/2_GET.MD#3-header)
 와 동일합니다.
 
 ## 4. Query Parameter
