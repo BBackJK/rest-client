@@ -53,7 +53,7 @@ class RestClientProxy<T> implements InvocationHandler {
         try {
             result = invoker.getRestReturnValueResolver().resolve(response);
         } catch (RestClientDataMappingException e) {
-            invoker.getRestClientLogger().err("response :: \n{}", response.getStringResponse());
+            invoker.getRestClientLogger().err("response :: \n" + response.getStringResponse());
             invoker.getRestClientLogger().err(e.getMessage());
             throw new RestClientCallException();
         }

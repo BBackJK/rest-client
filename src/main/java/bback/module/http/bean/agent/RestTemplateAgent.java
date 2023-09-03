@@ -172,32 +172,32 @@ public class RestTemplateAgent implements HttpAgent {
         int headerSize = request.getHeaders().size();
         HttpMethod httpMethod = request.getMethod();
 
-        logger.log("Request\t\t{}", LOGGING_DELIMITER);
-        logger.log("Request\t\t| Agent\t\t\t\t: {}", this.getClass().getSimpleName());
-        logger.log("Request\t\t| Url\t\t\t\t: {} {} ", httpMethod == null ? "N/A" : httpMethod.name(), request.getUrl());
+        logger.log("Request\t\t" + LOGGING_DELIMITER);
+        logger.log("Request\t\t| Agent\t\t\t\t: " + this.getClass().getSimpleName());
+        logger.log("Request\t\t| Url\t\t\t\t: " + (httpMethod == null ? "N/A" : httpMethod.name()) + " " + request.getUrl());
         if (headerSize < 1) {
             logger.log("Request\t\t| Header\t\t\t: EMPTY");
         } else {
-            request.getHeaders().forEach((k, listV) -> logger.log("Request\t\t| Header\t\t\t: {} - {}", k, listV));
+            request.getHeaders().forEach((k, listV) -> logger.log("Request\t\t| Header\t\t\t: " + k + " - " + listV));
         }
 
-        logger.log("Request\t\t| Body\t\t\t\t: {}", request.getBody());
-        logger.log("Request\t\t{}", LOGGING_DELIMITER);
+        logger.log("Request\t\t| Body\t\t\t\t: " + request.getBody());
+        logger.log("Request\t\t" + LOGGING_DELIMITER);
     }
 
     private void responseLogging(ResponseEntity<String> response, LogHelper logger, long callTimeDiff) {
         HttpHeaders headers = response.getHeaders();
         int headerSize = headers.size();
 
-        logger.log("Response\t\t{}", LOGGING_DELIMITER);
-        logger.log("Response\t\t| Agent\t\t\t\t: {}", this.getClass().getSimpleName());
-        logger.log("Response\t\t| Total Call Millis\t: {} ms", callTimeDiff);
-        logger.log("Response\t\t| Data(String)\t\t: {}", response.getBody());
+        logger.log("Response\t\t" +  LOGGING_DELIMITER);
+        logger.log("Response\t\t| Agent\t\t\t\t: " + this.getClass().getSimpleName());
+        logger.log("Response\t\t| Total Call Millis\t: " + callTimeDiff + " ms");
+        logger.log("Response\t\t| Data(String)\t\t: " +  response.getBody());
         if (headerSize < 1) {
             logger.log("Response\t\t| Header\t\t\t: EMPTY");
         } else {
-            headers.forEach((k, listV) -> logger.log("Response\t\t| Header\t\t\t: {} - {}", k, listV));
+            headers.forEach((k, listV) -> logger.log("Response\t\t| Header\t\t\t: " + k + " - " + listV));
         }
-        logger.log("Response\t\t{}", LOGGING_DELIMITER);
+        logger.log("Response\t\t" + LOGGING_DELIMITER);
     }
 }

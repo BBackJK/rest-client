@@ -7,7 +7,6 @@ import bback.module.http.util.RestClientClassUtils;
 import bback.module.http.util.RestClientMapUtils;
 import bback.module.http.util.RestClientReflectorUtils;
 import bback.module.http.wrapper.RequestMetadata;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -306,7 +305,7 @@ public class RequestMethodMetadata {
         try {
             return new MediaType(contentTypeSplit[0], contentTypeSplit[1]);
         } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
-            LOGGER.warn("Annotation 으로부터 contentType 을 파싱하다 실패하였습니다. 원인 :: {}", e.getMessage());
+            LOGGER.warn("Annotation 으로부터 contentType 을 파싱하다 실패하였습니다. 원인 : \n" + e.getMessage());
             return defaultContentType;
         }
     }
