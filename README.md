@@ -37,7 +37,7 @@ allprojects {
 }
 ...
 dependencies {
-    implementation 'com.github.BBackJK:rest-client:v0.1.0'
+    implementation 'com.github.BBackJK:rest-client:v0.1.0-alpha'
 }
 ...
 ```
