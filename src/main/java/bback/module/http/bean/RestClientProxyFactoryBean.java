@@ -19,7 +19,7 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T> {
     @Override
     public T getObject() throws Exception {
         T object = this.proxyFactory.newInstance();
-        LOGGER.log("RestClient Bean 이 정상적으로 등록되었습니다. 등록된 Class : {}", this.restClientInterface.getName());
+        LOGGER.log("RestClient Bean 이 정상적으로 등록되었습니다. 등록된 Class : " + this.restClientInterface.getName());
         return object;
     }
 

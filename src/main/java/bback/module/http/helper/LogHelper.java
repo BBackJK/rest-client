@@ -1,10 +1,13 @@
 package bback.module.http.helper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import bback.module.logger.Log;
+import bback.module.logger.LogFactory;
 
 public class LogHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogHelper.class);
+    private static final Log LOGGER = LogFactory.getLog(LogHelper.class);
+    private static final String LOG_LEVEL_LOG = "LOG";
+    private static final String LOG_LEVEL_WARN = "WARN";
+    private static final String LOG_LEVEL_ERROR = "ERROR";
     private final String context;
 
     public LogHelper(String context) {
@@ -23,28 +26,16 @@ public class LogHelper {
         return new LogHelper(context);
     }
 
-    public void log(String message, Object... args) {
-        LOGGER.info(getFormatMessage(message, "LOG"), args);
-    }
-
     public void log(String message) {
-        log(message, (Object) null);
-    }
-
-    public void warn(String message, Object... args) {
-        LOGGER.warn(getFormatMessage(message, "WARN"), args);
+        LOGGER.info(getFormatMessage(message, LOG_LEVEL_LOG));
     }
 
     public void warn(String message) {
-        warn(message, (Object) null);
-    }
-
-    public void err(String message, Object... args) {
-        LOGGER.error(getFormatMessage(message, "ERROR"), args);
+        LOGGER.warn(getFormatMessage(message, LOG_LEVEL_WARN));
     }
 
     public void err(String message) {
-        err(message, (Object) null);
+        LOGGER.warn(getFormatMessage(message, LOG_LEVEL_ERROR));
     }
 
     private String getFormatMessage(String msg, String logLevel) {

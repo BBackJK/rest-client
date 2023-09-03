@@ -147,7 +147,7 @@ public class UnirestHttpAgent implements HttpAgent {
                         ? requestBuilder
                         : requestBuilder.fields(map);
             } catch (IllegalArgumentException e) {
-                logger.warn("x-www-form-urlencoded 의 form data 가 Map 으로 변환되는데에 에러가 발생하였습니다. body :: {}", body);
+                logger.warn("x-www-form-urlencoded 의 form data 가 Map 으로 변환되는데에 에러가 발생하였습니다. body :: " + body);
                 logger.warn(e.getMessage());
                 return requestBuilder.body(body);
             }
@@ -161,40 +161,40 @@ public class UnirestHttpAgent implements HttpAgent {
         int headerSize = headers.size();
         HttpMethod httpMethod = request.getHttpMethod();
 
-        logger.log("Request\t\t{}", LOGGING_DELIMITER);
-        logger.log("Request\t\t| Agent\t\t\t\t: {}", this.getClass().getSimpleName());
-        logger.log("Request\t\t| Url\t\t\t\t: {} {} ", httpMethod == null ? "N/A" : httpMethod.name(), request.getUrl());
+        logger.log("Request\t\t" + LOGGING_DELIMITER);
+        logger.log("Request\t\t| Agent\t\t\t\t: " + this.getClass().getSimpleName());
+        logger.log("Request\t\t| Url\t\t\t\t: " + (httpMethod == null ? "N/A" : httpMethod.name()) + " " + request.getUrl());
 
         if (headerSize < 1) {
             logger.log("Request\t\t| Header\t\t\t: EMPTY");
         } else {
-            headers.all().forEach(h -> logger.log("Request\t\t| Header\t\t\t: {} - {}", h.getName(), h.getValue()));
+            headers.all().forEach(h -> logger.log("Request\t\t| Header\t\t\t: " + h.getName() + " - " + h.getValue()));
         }
 
         request.getBody().ifPresent(b -> {
             if (b.isMultiPart()) {
                 List<BodyPart> bodyParts = new ArrayList<>(b.multiParts());
-                logger.log("Request\t\t| Body\t\t\t\t: {}", bodyParts);
+                logger.log("Request\t\t| Body\t\t\t\t: " + bodyParts);
             } else if (b.isEntityBody()) {
-                logger.log("Request\t\t| Body\t\t\t\t: {}", b.uniPart());
+                logger.log("Request\t\t| Body\t\t\t\t: " + b.uniPart());
             }
         });
-        logger.log("Request\t\t{}", LOGGING_DELIMITER);
+        logger.log("Request\t\t" + LOGGING_DELIMITER);
     }
 
     private void responseLogging(HttpResponse<String> response, LogHelper logger, long callTimeDiff) {
         Headers headers = response.getHeaders();
         int headerSize = headers.size();
 
-        logger.log("Response\t\t{}", LOGGING_DELIMITER);
-        logger.log("Response\t\t| Agent\t\t\t\t: {}", this.getClass().getSimpleName());
-        logger.log("Response\t\t| Total Call Millis\t: {} ms", callTimeDiff);
-        logger.log("Response\t\t| Data(String)\t\t: {}", response.getBody());
+        logger.log("Response\t\t" + LOGGING_DELIMITER);
+        logger.log("Response\t\t| Agent\t\t\t\t: " + this.getClass().getSimpleName());
+        logger.log("Response\t\t| Total Call Millis\t: " + callTimeDiff + " ms");
+        logger.log("Response\t\t| Data(String)\t\t: " + response.getBody());
         if (headerSize < 1) {
             logger.log("Response\t\t| Header\t\t\t: EMPTY");
         } else {
-            headers.all().forEach(h -> logger.log("Response\t\t| Header\t\t\t: {} - {}", h.getName(), h.getValue()));
+            headers.all().forEach(h -> logger.log("Response\t\t| Header\t\t\t: " + h.getName() + " - " + h.getValue()));
         }
-        logger.log("Response\t\t{}", LOGGING_DELIMITER);
+        logger.log("Response\t\t" + LOGGING_DELIMITER);
     }
 }

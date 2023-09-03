@@ -1,6 +1,7 @@
 package bback.module.http.util;
 
 import org.springframework.lang.Nullable;
+import org.springframework.util.ClassUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +10,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.*;
 
-public final class RestClientClassUtils extends org.springframework.util.ClassUtils {
+public final class RestClientClassUtils {
 
     private RestClientClassUtils() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
@@ -111,7 +112,7 @@ public final class RestClientClassUtils extends org.springframework.util.ClassUt
     }
 
     public static boolean isPrimitiveOrString(Class<?> clazz) {
-        return clazz != null && (isPrimitiveOrWrapper(clazz) || String.class.equals(clazz));
+        return clazz != null && (ClassUtils.isPrimitiveOrWrapper(clazz) || String.class.equals(clazz));
     }
 
     public static Class<?> classForName(String name, ClassLoader[] classLoaders) throws ClassNotFoundException {
