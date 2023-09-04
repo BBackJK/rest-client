@@ -1,10 +1,9 @@
 package bback.module.http.reflector;
 
 import bback.module.http.exceptions.RestClientCallException;
-import bback.module.http.util.RestClientClassUtils;
-import org.springframework.util.MethodInvoker;
+import bback.module.http.util.RestClientReflectorUtils;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -32,22 +31,16 @@ class QueryValueArgumentHandler implements ParameterArgumentHandler {
                 Map<?, ?> map = (Map<?, ?>) o;
                 map.forEach((k, v) -> preset.set(String.valueOf(k), v == null ? null : String.valueOf(v)));
             } else if (this.metadata.isReferenceType()) {
-                MethodInvoker mi = new MethodInvoker();
-                mi.setTargetObject(o);
-                List<String> getterMethods = this.metadata.getGetterMethodNames();
-                for ( String fieldName : getterMethods ) {
-                    if ( fieldName != null ) {
-                        try {
-                            mi.setTargetMethod(RestClientClassUtils.getGetterMethodByFieldName(fieldName));
-                            mi.prepare();
-                            Object v = mi.invoke();
-                            if ( v != null ) {
-                                preset.set(fieldName, String.valueOf(v));
-                            }
-                        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
-                                 IllegalAccessException e) {
-                            // ignore..
+                List<Field> fields = RestClientReflectorUtils.filterLocalFields(o.getClass());
+                for (Field f : fields) {
+                    f.setAccessible(true);
+                    try {
+                        Object v = f.get(o);
+                        if (v != null) {
+                            preset.set(f.getName(), String.valueOf(v));
                         }
+                    }  catch (IllegalAccessException e) {
+                        // ignore ...
                     }
                 }
             } else {

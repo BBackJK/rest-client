@@ -34,7 +34,7 @@ class RequestParamMetadata {
 
     public RequestParamMetadata(@NonNull Parameter parameter) {
         this.paramClass = parameter.getType();
-        this.getterMethodNames = RestClientClassUtils.getGetterFieldNameByClass(this.paramClass);
+        this.getterMethodNames = RestClientReflectorUtils.getGetterFieldNameByClass(this.paramClass);
         this.annotation = this.parseAnnotation(parameter);
         this.paramName = this.parseParamName(parameter);
     }

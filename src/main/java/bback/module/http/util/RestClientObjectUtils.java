@@ -40,4 +40,20 @@ public final class RestClientObjectUtils {
     public static boolean isNotEmpty(Object value) {
         return !isEmpty(value);
     }
+
+    public static String toCamel(String value) {
+        if ( value == null || value.isEmpty() ) {
+            return "";
+        }
+        String firstVal = value.substring(0, 1);
+        return value.replaceFirst(firstVal, firstVal.toLowerCase());
+    }
+
+    public static String toPascal(String value) {
+        if ( value == null || value.isEmpty() ) {
+            return "";
+        }
+        String firstVal = value.substring(0, 1);
+        return value.replaceFirst(firstVal, firstVal.toUpperCase());
+    }
 }

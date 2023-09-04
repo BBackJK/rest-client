@@ -1,12 +1,10 @@
 package bback.module.http.util;
 
-import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.*;
 
@@ -48,55 +46,6 @@ public final class RestClientClassUtils {
         }
 
         return classes;
-    }
-
-    public static String toCamel(String value) {
-        if ( value == null || value.isEmpty() ) {
-            return "";
-        }
-        String firstVal = value.substring(0, 1);
-        return value.replaceFirst(firstVal, firstVal.toLowerCase());
-    }
-
-    @Nullable
-    public static String getGetterMethodByFieldName(String fieldName) {
-        return fieldName == null || fieldName.isEmpty() ? null : "get"+toPascal(fieldName);
-    }
-
-    @Nullable
-    public static String getGetterMethodByField(Field field) {
-        if ( field == null ) return null;
-        return getGetterMethodByFieldName(field.getName());
-    }
-
-    public static List<String> getGetterFieldNameByClass(Class<?> clazz) {
-        if ( clazz == null || isPrimitiveOrString(clazz) || clazz.isInterface() ) {
-            return Collections.emptyList();
-        }
-        List<String> result = new ArrayList<>();
-        Field[] fields = clazz.getDeclaredFields();
-        int fieldCount = fields.length;
-        for (int i=0; i<fieldCount; i++) {
-            try {
-                Field f = fields[i];
-                String fieldGetterName = getGetterMethodByField(f);
-                if ( fieldGetterName != null ) {
-                    clazz.getMethod(fieldGetterName);
-                    result.add(f.getName());
-                }
-            } catch (NoSuchMethodException e) {
-                // ignore
-            }
-        }
-        return result;
-    }
-
-    public static String toPascal(String value) {
-        if ( value == null || value.isEmpty() ) {
-            return "";
-        }
-        String firstVal = value.substring(0, 1);
-        return value.replaceFirst(firstVal, firstVal.toUpperCase());
     }
 
     public static ClassLoader[] getClassLoaders() {
