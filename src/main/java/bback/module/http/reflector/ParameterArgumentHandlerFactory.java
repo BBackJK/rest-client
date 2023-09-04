@@ -5,7 +5,7 @@ import java.util.List;
 final class ParameterArgumentHandlerFactory {
 
     private ParameterArgumentHandlerFactory() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException("This is a factory class and cannot be instantiated");
     }
 
     public static ParameterArgumentHandler getHandler(RequestParamMetadata metadata, boolean isOnlyRequestParam, boolean isEmptyAllAnnotation, List<String> pathValueNames) {
@@ -17,6 +17,8 @@ final class ParameterArgumentHandlerFactory {
             return new QueryValueArgumentHandler(metadata);
         } else if (metadata.isRestCallback()) {
             return new RestCallbackArgumentHandler();
+        } else if (metadata.isAnnotationAuthorization()) {
+            return new HeaderAuthorizationArgumentHandler(metadata);
         } else {
             return new BodyDataArgumentHandler();
         }

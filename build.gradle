@@ -9,7 +9,6 @@ ext {
     lombokVersion = '1.18.28'
     slf4jVersion = '1.7.36'
     springCoreVersion = '5.3.29'
-    springBootVersion = '2.7.14'
     jacksonCoreVersion = '2.13.5'
     apacheHttpClientVersion = '4.5.14'
     unirestVersion = '3.14.5'
@@ -25,10 +24,9 @@ dependencies {
     compileOnly "org.slf4j:slf4j-api:${slf4jVersion}"
 
     // spring
-    implementation "org.springframework:spring-core:${springCoreVersion}"
-    implementation "org.springframework:spring-web:${springCoreVersion}"
-    implementation "org.springframework:spring-context:${springCoreVersion}"
-    implementation "org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}"
+    compileOnly "org.springframework:spring-core:${springCoreVersion}"
+    compileOnly "org.springframework:spring-web:${springCoreVersion}"
+    compileOnly "org.springframework:spring-context:${springCoreVersion}"
 
     // jackson
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonCoreVersion}"
