@@ -19,6 +19,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Collections;
 import java.util.Map;
 
 
@@ -141,7 +142,9 @@ public class RestTemplateAgent implements HttpAgent {
                 }
             }
         }
-        headers.add(HttpHeaders.CONTENT_TYPE, contentType.toString());
+        if (!headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
+            headers.add(HttpHeaders.CONTENT_TYPE, contentType.toString());
+        }
         return headers;
     }
 
@@ -178,7 +181,14 @@ public class RestTemplateAgent implements HttpAgent {
         if (headerSize < 1) {
             logger.log("Request\t\t| Header\t\t\t: EMPTY");
         } else {
-            request.getHeaders().forEach((k, listV) -> logger.log("Request\t\t| Header\t\t\t: " + k + " - " + listV));
+            request.getHeaders().forEach((k, listV) -> {
+                String headerKey = k;
+                String headerValue = listV == null ? Collections.emptyList().toString() : listV.toString();
+                if (RestClientUtils.HTTP_HEADER_AUTH_KEY.equals(headerKey)) {
+                    headerValue = "[◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼]";
+                }
+                logger.log("Request\t\t| Header\t\t\t: " + headerKey + " - " + headerValue);
+            });
         }
 
         logger.log("Request\t\t| Body\t\t\t\t: " + request.getBody());

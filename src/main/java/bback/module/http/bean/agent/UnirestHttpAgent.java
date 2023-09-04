@@ -125,7 +125,6 @@ public class UnirestHttpAgent implements HttpAgent {
     }
 
     private void handleHeader(HttpRequestWithBody requestBuilder, Map<String, String> headerValues, MediaType contentType) {
-        requestBuilder.header(HttpHeaders.CONTENT_TYPE, contentType.toString());
         if (!headerValues.isEmpty()) {
             for (Map.Entry<String, String> kv : headerValues.entrySet()) {
                 String key = kv.getKey();
@@ -135,6 +134,8 @@ public class UnirestHttpAgent implements HttpAgent {
                 }
             }
         }
+
+        requestBuilder.header(HttpHeaders.CONTENT_TYPE, contentType.toString());
     }
 
     private HttpRequest<?> handleBody(HttpRequestWithBody requestBuilder, Object body, boolean isUrlEncodedForm, LogHelper logger) {
@@ -168,7 +169,14 @@ public class UnirestHttpAgent implements HttpAgent {
         if (headerSize < 1) {
             logger.log("Request\t\t| Header\t\t\t: EMPTY");
         } else {
-            headers.all().forEach(h -> logger.log("Request\t\t| Header\t\t\t: " + h.getName() + " - " + h.getValue()));
+            headers.all().forEach(h -> {
+                String headerKey = h.getName();
+                String headerValue = h.getValue();
+                if (RestClientUtils.HTTP_HEADER_AUTH_KEY.equals(headerKey)) {
+                    headerValue = "◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼";
+                }
+                logger.log("Request\t\t| Header\t\t\t: " + headerKey + " - " + headerValue);
+            });
         }
 
         request.getBody().ifPresent(b -> {
