@@ -1,5 +1,6 @@
 package bback.module.spring;
 
+import bback.module.http.annotations.EnableRestClient;
 import bback.module.http.annotations.RestClient;
 import bback.module.http.exceptions.RestClientCommonException;
 import bback.module.http.helper.LogHelper;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.lang.NonNull;
@@ -36,16 +36,16 @@ public class AutoConfiguredRestClientScannerRegistrar implements BeanFactoryAwar
 
     private String getBasePackageName() {
         try {
-            String[] springBootApplicationBeanNames = this.beanFactory.getBeanNamesForAnnotation(SpringBootApplication.class);
-            if ( springBootApplicationBeanNames.length != 1 ) {
-                throw new RestClientCommonException("SpringBootApplication 어노테이션을 가진 클래스가 없거나 하나 이상입니다.");
+            String[] enableRestClientBeanNames = this.beanFactory.getBeanNamesForAnnotation(EnableRestClient.class);
+            if ( enableRestClientBeanNames.length != 1 ) {
+                throw new RestClientCommonException("EnableRestClient 어노테이션을 가진 클래스가 없거나 하나 이상입니다.");
             }
-            String springBootApplicationBeanName = springBootApplicationBeanNames[0];
-            BeanDefinition bd = this.beanFactory.getBeanDefinition(springBootApplicationBeanName);
-            return ClassUtils.getPackageName(bd.getResolvableType().toString());
+            String enableRestClientBeanName = enableRestClientBeanNames[0];
+            BeanDefinition beanDefinition = this.beanFactory.getBeanDefinition(enableRestClientBeanName);
+            return ClassUtils.getPackageName(beanDefinition.getResolvableType().toString());
         } catch (Exception e) {
             LOGGER.err(e.getMessage());
-            throw new RestClientCommonException("SpringBootApplication 클래스를 찾는데 실패하였습니다.");
+            throw new RestClientCommonException("EnableRestClient 어노테이션클래스를 찾는데 실패하였습니다.");
         }
     }
 }

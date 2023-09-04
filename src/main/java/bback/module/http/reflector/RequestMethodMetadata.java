@@ -122,7 +122,7 @@ public class RequestMethodMetadata {
             ParameterArgumentHandler handler = this.parameterArgumentHandlerMap.get(i);
             if ( handler != null ) {
                 Class<? extends ParameterArgumentHandler> handlerType = handler.getClass();
-                if (handlerType.equals(HeaderValueArgumentHandler.class)) {
+                if (handlerType.equals(HeaderValueArgumentHandler.class) || handlerType.equals(HeaderAuthorizationArgumentHandler.class)) {
                     handler.handle(headerValuePreset, arg);
                 } else if (handlerType.equals(PathValueArgumentHandler.class)) {
                     handler.handle(pathValuePreset, arg);
@@ -328,10 +328,11 @@ public class RequestMethodMetadata {
         // 2. Request Body 수 확인
         long requestBodyCount = parameterMetadataMap.values().stream().filter(p -> {
             boolean isRequestHeader = p.isAnnotationRequestHeader();
+            boolean isHeaderAuthorization = p.isAnnotationAuthorization();
             boolean isPathVariable = p.isAnnotationPathVariable();
             boolean canRequestParam = p.canRequestParam(this.isOnlyRequestParam(), this.emptyAllParameterAnnotation, this.pathValueNames);
             boolean isRestCallback = p.isRestCallback();
-            return !isRequestHeader && !isPathVariable && !canRequestParam && !isRestCallback;
+            return !isRequestHeader && !isPathVariable && !canRequestParam && !isRestCallback && !isHeaderAuthorization;
         }).count();
 
         // 3. GET, DELETE 인데 requestBody 로 판단되는 파라미터가 1개 이상이라면..

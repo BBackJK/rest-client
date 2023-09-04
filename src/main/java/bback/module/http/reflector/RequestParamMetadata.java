@@ -1,8 +1,10 @@
 package bback.module.http.reflector;
 
+import bback.module.http.annotations.Authorization;
 import bback.module.http.interfaces.RestCallback;
 import bback.module.http.util.RestClientClassUtils;
 import bback.module.http.util.RestClientReflectorUtils;
+import bback.module.http.util.RestClientUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +23,8 @@ import java.util.stream.Stream;
 
 class RequestParamMetadata {
 
-    private static final List<Class<? extends Annotation>> ALLOWED_PARAMETER_ANNOTATIONS = Collections.unmodifiableList(Stream.of(RequestParam.class, RequestHeader.class, RequestBody.class, PathVariable.class).collect(Collectors.toList()));
+    private static final List<Class<? extends Annotation>> ALLOWED_PARAMETER_SPRING_ANNOTATIONS = Collections.unmodifiableList(Stream.of(RequestParam.class, RequestHeader.class, RequestBody.class, PathVariable.class).collect(Collectors.toList()));
+    private static final List<Class<? extends Annotation>> ALLOWED_PARAMETER_CUSTOM_ANNOTATIONS = Collections.unmodifiableList(Stream.of(Authorization.class).collect(Collectors.toList()));
 
     @NonNull
     private final Class<?> paramClass;
@@ -33,7 +36,7 @@ class RequestParamMetadata {
         this.paramClass = parameter.getType();
         this.getterMethodNames = RestClientClassUtils.getGetterFieldNameByClass(this.paramClass);
         this.annotation = this.parseAnnotation(parameter);
-        this.paramName = this.parseParamName(parameter, this.annotation);
+        this.paramName = this.parseParamName(parameter);
     }
 
     public boolean isRestCallback() {
@@ -54,6 +57,10 @@ class RequestParamMetadata {
 
     public boolean isAnnotationRequestBody() {
         return this.annotation != null && RequestBody.class.equals(this.annotation.annotationType());
+    }
+
+    public boolean isAnnotationAuthorization() {
+        return this.annotation != null && Authorization.class.equals(this.annotation.annotationType());
     }
 
     public boolean isListType() {
@@ -101,28 +108,39 @@ class RequestParamMetadata {
 
     @Nullable
     private Annotation parseAnnotation(Parameter parameter) {
-        for (Class<? extends Annotation> a : ALLOWED_PARAMETER_ANNOTATIONS) {
-            Annotation anno = parameter.getAnnotation(a);
-            if ( anno != null ) {
-                return anno;
+        for (Class<? extends Annotation> s : ALLOWED_PARAMETER_SPRING_ANNOTATIONS) {
+            Annotation springAnnotation = parameter.getAnnotation(s);
+            if ( springAnnotation != null ) {
+                return springAnnotation;
+            }
+        }
+        for (Class<? extends Annotation> c : ALLOWED_PARAMETER_CUSTOM_ANNOTATIONS) {
+            Annotation customAnnotation = parameter.getAnnotation(c);
+            if ( customAnnotation != null ) {
+                return customAnnotation;
             }
         }
         return null;
     }
 
     @NonNull
-    private String parseParamName(Parameter parameter, Annotation annotation) {
-        if ( annotation != null && !RequestBody.class.equals(annotation.annotationType()) ) {
-            String result = null;
-            String value = (String) RestClientReflectorUtils.annotationMethodInvoke(annotation, "value");
-            String name = (String) RestClientReflectorUtils.annotationMethodInvoke(annotation, "name");
-            if ( name != null && !name.isEmpty() ) {
-                result = name;
-            } else if ( value != null && !value.isEmpty() ) {
-                result = value;
-            }
-            return result == null ? parameter.getName() : result;
+    private String parseParamName(Parameter parameter) {
+        if ( !this.hasAnnotation() || this.isAnnotationRequestBody() ) {
+            return parameter.getName();
         }
-        return parameter.getName();
+
+        if ( this.isAnnotationAuthorization() ) {
+            return RestClientUtils.HTTP_HEADER_AUTH_KEY;
+        }
+
+        String result = null;
+        String value = (String) RestClientReflectorUtils.annotationMethodInvoke(this.annotation, "value");
+        String name = (String) RestClientReflectorUtils.annotationMethodInvoke(this.annotation, "name");
+        if ( name != null && !name.isEmpty() ) {
+            result = name;
+        } else if ( value != null && !value.isEmpty() ) {
+            result = value;
+        }
+        return result == null ? parameter.getName() : result;
     }
 }
