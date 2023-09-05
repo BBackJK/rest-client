@@ -27,7 +27,7 @@ public class RequestMethodMetadata {
     private static final LogHelper LOGGER = LogHelper.of(RequestMethodMetadata.class);
 
     // Method 어노테이션 :: ALLOWED_REQUEST_MAPPING_ANNOTATIONS 중 하나
-    private final Annotation annotation;
+    private final Annotation mappingAnnotation;
 
     // k :: argument 순서, v :: argument 메타데이터 핸들러
     private final Map<Integer, ParameterArgumentHandler> parameterArgumentHandlerMap;
@@ -64,13 +64,13 @@ public class RequestMethodMetadata {
     public RequestMethodMetadata(Method method) {
         Class<?> restClientInterface = method.getDeclaringClass();
         Map<Integer, RequestParamMetadata> parameterMetadataMap = RestClientMapUtils.toReadonly(this.getParamMetadataList(method.getParameters()));
-        this.annotation = this.parseAnnotation(method);
+        this.mappingAnnotation = this.parseAnnotation(method);
         this.hasRequestParamAnnotation = parameterMetadataMap.values().stream().anyMatch(RequestParamMetadata::isAnnotationRequestParam);
         this.emptyAllParameterAnnotation = parameterMetadataMap.values().stream().noneMatch(RequestParamMetadata::hasAnnotation);
         this.restCallbackParameterList = Collections.unmodifiableList(parameterMetadataMap.values().stream().filter(RequestParamMetadata::isRestCallback).collect(Collectors.toList()));
-        this.requestMethod = this.parseRequestMethodByAnnotation(this.annotation);
-        this.pathname = this.parsePathNameByAnnotation(this.annotation);
-        this.contentType = this.parseContentTypeByAnnotation(this.annotation);
+        this.requestMethod = this.parseRequestMethodByAnnotation(this.mappingAnnotation);
+        this.pathname = this.parsePathNameByAnnotation(this.mappingAnnotation);
+        this.contentType = this.parseContentTypeByAnnotation(this.mappingAnnotation);
         this.pathValueNames = this.getPathVariableNames(this.pathname);
         this.returnMetadata = new RequestReturnMetadata(method);
         this.parameterArgumentHandlerMap = parameterMetadataMap
@@ -102,8 +102,8 @@ public class RequestMethodMetadata {
         return !pathValueNames.isEmpty();
     }
 
-    public Annotation getAnnotation() {
-        return this.annotation;
+    public Annotation getMappingAnnotation() {
+        return this.mappingAnnotation;
     }
 
     public RequestMetadata applyArgs(Object[] args, LogHelper restClientLogger, String origin) {
@@ -150,14 +150,21 @@ public class RequestMethodMetadata {
                 , restClientLogger);
     }
 
-    public boolean isReturnWrap() {
-        return this.returnMetadata.isWrap();
+    public boolean isReturnObjectWrap() {
+        return this.returnMetadata.isObjectWrap();
+    }
+
+    public boolean isReturnResultWrap() {
+        return this.returnMetadata.isResultWrap();
     }
 
     public boolean isResultWrapper() {
         return this.returnMetadata.isWrapOptional() || this.returnMetadata.isWrapRestResponse();
     }
 
+    public boolean isReturnList() {
+        return this.returnMetadata.isWrapList();
+    }
     public boolean isReturnMap() {
         return this.returnMetadata.isWrapMap();
     }
@@ -178,6 +185,10 @@ public class RequestMethodMetadata {
         return this.returnMetadata.isWrapRestResponse();
     }
 
+    public boolean isReturnCompletableFuture() {
+        return this.returnMetadata.isWrapCompletableFuture();
+    }
+
     public boolean isDoubleWrap() {
         return this.returnMetadata.isDoubleWrap();
     }
@@ -189,6 +200,14 @@ public class RequestMethodMetadata {
 
     public Class<?> getRawType() {
         return this.returnMetadata.getRawType();
+    }
+
+    public boolean isSecondWrapList() {
+        return this.returnMetadata.isSecondWrapList();
+    }
+
+    public boolean isSecondWrapMap() {
+        return this.returnMetadata.isSecondWrapMap();
     }
 
     public RequestMethod getRequestMethod() {
@@ -369,5 +388,4 @@ public class RequestMethodMetadata {
             throw new RestClientCommonException(String.format("[%s] RestClient 는 Return RestResponse 와 Argument RestCallback 의 중복 사용을 지원하지 않습니다.", errorContext));
         }
     }
-
 }

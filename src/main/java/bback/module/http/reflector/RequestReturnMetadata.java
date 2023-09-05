@@ -3,7 +3,6 @@ package bback.module.http.reflector;
 import bback.module.http.exceptions.RestClientCommonException;
 import bback.module.http.helper.LogHelper;
 import bback.module.http.wrapper.RestResponse;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Method;
@@ -13,9 +12,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 class RequestReturnMetadata {
-    private static final LogHelper LOGGER = LogHelper.of(RequestReturnMetadata.class);
+//    private static final LogHelper LOGGER = LogHelper.of(RequestReturnMetadata.class);
     private final Class<?> returnClass;
     private final Class<?> rawType;
 
@@ -45,17 +45,16 @@ class RequestReturnMetadata {
         }
     }
 
-    public boolean isWrap() {
-        return isWrapList() || isWrapRestResponse() || isDoubleWrap() || isWrapMap() || isWrapOptional();
+    public boolean isObjectWrap() {
+        return isWrapList() || isWrapMap() || isDoubleWrap();
+    }
+
+    public boolean isResultWrap() {
+        return isWrapRestResponse() || isWrapOptional() || isWrapCompletableFuture();
     }
 
     public boolean isWrapList() {
-        return this.isWrapList(this.returnClass);
-    }
-
-    public boolean isWrapList(Class<?> clazz) {
-        if ( clazz == null ) return false;
-        return Arrays.asList(clazz.getInterfaces()).contains(List.class) || clazz.isAssignableFrom(List.class);
+        return Arrays.asList(this.returnClass.getInterfaces()).contains(List.class) || this.returnClass.isAssignableFrom(List.class);
     }
 
     public boolean isWrapMap() {
@@ -78,6 +77,10 @@ class RequestReturnMetadata {
         return RestResponse.class.equals(this.returnClass);
     }
 
+    public boolean isWrapCompletableFuture() {
+        return CompletableFuture.class.equals(this.returnClass);
+    }
+
     public boolean isDoubleWrap() {
         return this.secondRawType != null && !this.secondRawType.equals(this.returnClass);
     }
@@ -89,6 +92,16 @@ class RequestReturnMetadata {
     @Nullable
     public Class<?> getSecondRawType() {
         return this.secondRawType;
+    }
+
+    public boolean isSecondWrapList() {
+        if ( this.getSecondRawType() == null ) return false;
+        return Arrays.asList(this.secondRawType.getInterfaces()).contains(List.class) || this.secondRawType.isAssignableFrom(List.class);
+    }
+
+    public boolean isSecondWrapMap() {
+        if ( this.getSecondRawType() == null ) return false;
+        return Arrays.asList(this.secondRawType.getInterfaces()).contains(Map.class) || this.secondRawType.isAssignableFrom(Map.class);
     }
 
     private ParameterizedType getParameterType(Type returnType) {
