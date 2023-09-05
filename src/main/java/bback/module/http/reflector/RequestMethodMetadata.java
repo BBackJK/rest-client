@@ -102,10 +102,6 @@ public class RequestMethodMetadata {
         return !pathValueNames.isEmpty();
     }
 
-    public Annotation getMappingAnnotation() {
-        return this.mappingAnnotation;
-    }
-
     public RequestMetadata applyArgs(Object[] args, LogHelper restClientLogger, String origin) {
         if ( args == null || args.length == 0 ) {
             return RequestMetadata.of(this.getRequestUrl(origin, this.pathname), this.contentType, restClientLogger);
@@ -150,31 +146,8 @@ public class RequestMethodMetadata {
                 , restClientLogger);
     }
 
-    public boolean isReturnObjectWrap() {
-        return this.returnMetadata.isObjectWrap();
-    }
-
     public boolean isReturnResultWrap() {
         return this.returnMetadata.isResultWrap();
-    }
-
-    public boolean isResultWrapper() {
-        return this.returnMetadata.isWrapOptional() || this.returnMetadata.isWrapRestResponse();
-    }
-
-    public boolean isReturnList() {
-        return this.returnMetadata.isWrapList();
-    }
-    public boolean isReturnMap() {
-        return this.returnMetadata.isWrapMap();
-    }
-
-    public boolean isReturnString() {
-        return this.returnMetadata.isString();
-    }
-
-    public boolean isReturnVoid() {
-        return this.returnMetadata.isVoid();
     }
 
     public boolean isReturnOptional() {
@@ -200,14 +173,6 @@ public class RequestMethodMetadata {
 
     public Class<?> getRawType() {
         return this.returnMetadata.getRawType();
-    }
-
-    public boolean isSecondWrapList() {
-        return this.returnMetadata.isSecondWrapList();
-    }
-
-    public boolean isSecondWrapMap() {
-        return this.returnMetadata.isSecondWrapMap();
     }
 
     public RequestMethod getRequestMethod() {

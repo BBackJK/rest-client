@@ -62,10 +62,6 @@ public class RestClientInvoker {
         return this.methodMetadata.isReturnRestResponse() || this.methodMetadata.hasRestCallback() || this.methodMetadata.isReturnOptional() || this.methodMetadata.isReturnCompletableFuture();
     }
 
-    public RequestMethodMetadata getMethodMetadata() {
-        return methodMetadata;
-    }
-
     public LogHelper getRestClientLogger() {
         return restClientLogger;
     }

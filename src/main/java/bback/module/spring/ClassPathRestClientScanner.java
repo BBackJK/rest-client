@@ -3,7 +3,6 @@ package bback.module.spring;
 import bback.module.http.exceptions.RestClientCommonException;
 import bback.module.http.helper.LogHelper;
 import bback.module.http.util.RestClientBeanUtils;
-import bback.module.http.util.RestClientClassUtils;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;

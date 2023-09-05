@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 
 class RestClientProxy<T> implements InvocationHandler {
-    private static final LogHelper LOGGER = LogHelper.of(RestClientProxy.class);
     private final RestClient restClient;
     private final HttpAgent httpAgent;
     private final ResponseMapper dataMapper;
@@ -40,37 +39,14 @@ class RestClientProxy<T> implements InvocationHandler {
     @Override
     @Async
     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
-        LOGGER.warn("thread name :: " + Thread.currentThread().getName());
-        LOGGER.warn("Thread id :: " + Thread.currentThread().getId());
         RestClientInvoker invoker = RestClientMapUtils.computeIfAbsent(this.cachedMethod, method, m -> new RestClientInvoker(m, this.httpAgent, this.dataMapper));
+        LogHelper restClientLogger = invoker.getRestClientLogger();
         ResponseMetadata response;
-//        if (invoker.isAsyncMethod()) {
-//            response = CompletableFuture.<ResponseMetadata>supplyAsync(() -> {
-//                        LOGGER.warn("thread async name :: " + Thread.currentThread().getName());
-//                        LOGGER.warn("Thread async id :: " + Thread.currentThread().getId());
-//                        return invoker.invoke(args, this.restClient.url());
-//                    })
-//                    .handle(((responseMetadata, throwable) -> {
-//                        if ( throwable != null ) {
-//                            invoker.getRestClientLogger().err(throwable.getMessage());
-//                            throw new RestClientCallException(throwable);
-//                        } else {
-//                            return responseMetadata;
-//                        }
-//                    })).join();
-//        } else {
-//            try {
-//                response = invoker.invoke(args, this.restClient.url());
-//            } catch (RestClientCallException e) {
-//                invoker.getRestClientLogger().err(e.getMessage());
-//                throw new RestClientCallException();
-//            }
-//        }
 
         try {
             response = invoker.invoke(args, this.restClient.url());
         } catch (RestClientCallException e) {
-            invoker.getRestClientLogger().err(e.getMessage());
+            restClientLogger.err(e.getMessage());
             throw new RestClientCallException();
         }
 
@@ -83,8 +59,8 @@ class RestClientProxy<T> implements InvocationHandler {
         try {
             result = invoker.getRestReturnResolver().resolve(response);
         } catch (RestClientDataMappingException e) {
-            invoker.getRestClientLogger().err("response :: \n" + response.getStringResponse());
-            invoker.getRestClientLogger().err(e.getMessage());
+            restClientLogger.err("response :: \n" + response.getStringResponse());
+            restClientLogger.err(e.getMessage());
             throw new RestClientCallException();
         }
 

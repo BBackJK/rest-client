@@ -5,7 +5,11 @@ import bback.module.http.interfaces.ResponseMapper;
 import bback.module.http.util.RestClientClassUtils;
 import bback.module.http.util.RestClientObjectUtils;
 import bback.module.http.wrapper.ResponseMetadata;
+import bback.module.http.wrapper.RestResponse;
 import org.springframework.lang.Nullable;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractRestReturnResolver implements RestReturnResolver {
 
@@ -34,10 +38,31 @@ public abstract class AbstractRestReturnResolver implements RestReturnResolver {
             if ( this.rawWrapType != null ) {
                 result = this.responseMapper.convert(responseValue, this.rawWrapType, this.rawType);
             } else {
-                result = this.responseMapper.convert(responseValue, this.rawType);
+                if ( this.isReturnString() ) {
+                    result = responseValue;
+                } else if ( !this.isReturnVoid() ) {
+                    result = this.responseMapper.convert(responseValue, this.rawType);
+                }
             }
         }
 
         return doWrapping(result, response);
+    }
+
+    protected boolean isReturnString() {
+        return String.class.equals(this.rawType);
+    }
+
+    protected boolean isReturnVoid() {
+        return void.class.equals(this.rawType) || Void.class.equals(this.rawType);
+    }
+
+    protected boolean isResultWrapper() {
+        return this.rawWrapType != null
+                && (
+                        RestResponse.class.equals(this.rawWrapType)
+                        || Optional.class.equals(this.rawWrapType)
+                        || CompletableFuture.class.equals(this.rawWrapType)
+                );
     }
 }

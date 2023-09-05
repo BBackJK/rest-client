@@ -12,11 +12,23 @@ public final class RestReturnResolverFactory {
 
         if (restClientMethod.isReturnResultWrap()) {
             if (restClientMethod.isReturnRestResponse()) {
-                return new RestResponseReturnResolver(dataMapper, restClientMethod.getRawType(), restClientMethod.getSecondRawType());
+                return new RestResponseReturnResolver(
+                        dataMapper
+                        , restClientMethod.getRawType()
+                        , restClientMethod.isDoubleWrap() ? restClientMethod.getSecondRawType() : null
+                );
             } else if (restClientMethod.isReturnOptional()) {
-                return new OptionalReturnResolver(dataMapper, restClientMethod.getRawType(), restClientMethod.getSecondRawType());
+                return new OptionalReturnResolver(
+                        dataMapper
+                        , restClientMethod.getRawType()
+                        , restClientMethod.isDoubleWrap() ? restClientMethod.getSecondRawType() : null
+                );
             } else {
-                return new CompletableFutureReturnResolver(dataMapper, restClientMethod.getRawType(), restClientMethod.getSecondRawType());
+                return new CompletableFutureReturnResolver(
+                        dataMapper
+                        , restClientMethod.getRawType()
+                        , restClientMethod.isDoubleWrap() ? restClientMethod.getSecondRawType() : null
+                );
             }
         } else {
             return new CommonReturnResolver(dataMapper, restClientMethod.getRawType(), restClientMethod.getSecondRawType());
