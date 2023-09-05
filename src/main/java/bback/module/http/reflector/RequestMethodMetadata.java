@@ -27,7 +27,7 @@ public class RequestMethodMetadata {
     private static final LogHelper LOGGER = LogHelper.of(RequestMethodMetadata.class);
 
     // Method 어노테이션 :: ALLOWED_REQUEST_MAPPING_ANNOTATIONS 중 하나
-    private final Annotation annotation;
+    private final Annotation mappingAnnotation;
 
     // k :: argument 순서, v :: argument 메타데이터 핸들러
     private final Map<Integer, ParameterArgumentHandler> parameterArgumentHandlerMap;
@@ -64,13 +64,13 @@ public class RequestMethodMetadata {
     public RequestMethodMetadata(Method method) {
         Class<?> restClientInterface = method.getDeclaringClass();
         Map<Integer, RequestParamMetadata> parameterMetadataMap = RestClientMapUtils.toReadonly(this.getParamMetadataList(method.getParameters()));
-        this.annotation = this.parseAnnotation(method);
+        this.mappingAnnotation = this.parseAnnotation(method);
         this.hasRequestParamAnnotation = parameterMetadataMap.values().stream().anyMatch(RequestParamMetadata::isAnnotationRequestParam);
         this.emptyAllParameterAnnotation = parameterMetadataMap.values().stream().noneMatch(RequestParamMetadata::hasAnnotation);
         this.restCallbackParameterList = Collections.unmodifiableList(parameterMetadataMap.values().stream().filter(RequestParamMetadata::isRestCallback).collect(Collectors.toList()));
-        this.requestMethod = this.parseRequestMethodByAnnotation(this.annotation);
-        this.pathname = this.parsePathNameByAnnotation(this.annotation);
-        this.contentType = this.parseContentTypeByAnnotation(this.annotation);
+        this.requestMethod = this.parseRequestMethodByAnnotation(this.mappingAnnotation);
+        this.pathname = this.parsePathNameByAnnotation(this.mappingAnnotation);
+        this.contentType = this.parseContentTypeByAnnotation(this.mappingAnnotation);
         this.pathValueNames = this.getPathVariableNames(this.pathname);
         this.returnMetadata = new RequestReturnMetadata(method);
         this.parameterArgumentHandlerMap = parameterMetadataMap
@@ -100,10 +100,6 @@ public class RequestMethodMetadata {
 
     public boolean isHasPathValue() {
         return !pathValueNames.isEmpty();
-    }
-
-    public Annotation getAnnotation() {
-        return this.annotation;
     }
 
     public RequestMetadata applyArgs(Object[] args, LogHelper restClientLogger, String origin) {
@@ -150,24 +146,8 @@ public class RequestMethodMetadata {
                 , restClientLogger);
     }
 
-    public boolean isReturnWrap() {
-        return this.returnMetadata.isWrap();
-    }
-
-    public boolean isResultWrapper() {
-        return this.returnMetadata.isWrapOptional() || this.returnMetadata.isWrapRestResponse();
-    }
-
-    public boolean isReturnMap() {
-        return this.returnMetadata.isWrapMap();
-    }
-
-    public boolean isReturnString() {
-        return this.returnMetadata.isString();
-    }
-
-    public boolean isReturnVoid() {
-        return this.returnMetadata.isVoid();
+    public boolean isReturnResultWrap() {
+        return this.returnMetadata.isResultWrap();
     }
 
     public boolean isReturnOptional() {
@@ -176,6 +156,10 @@ public class RequestMethodMetadata {
 
     public boolean isReturnRestResponse() {
         return this.returnMetadata.isWrapRestResponse();
+    }
+
+    public boolean isReturnCompletableFuture() {
+        return this.returnMetadata.isWrapCompletableFuture();
     }
 
     public boolean isDoubleWrap() {
@@ -369,5 +353,4 @@ public class RequestMethodMetadata {
             throw new RestClientCommonException(String.format("[%s] RestClient 는 Return RestResponse 와 Argument RestCallback 의 중복 사용을 지원하지 않습니다.", errorContext));
         }
     }
-
 }

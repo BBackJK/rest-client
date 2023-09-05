@@ -3,6 +3,7 @@ package bback.module.http.proxy;
 import bback.module.http.annotations.RestClient;
 import bback.module.http.exceptions.RestClientCallException;
 import bback.module.http.exceptions.RestClientDataMappingException;
+import bback.module.http.helper.LogHelper;
 import bback.module.http.interfaces.HttpAgent;
 import bback.module.http.interfaces.ResponseMapper;
 import bback.module.http.interfaces.RestCallback;
@@ -10,6 +11,7 @@ import bback.module.http.util.RestClientMapUtils;
 import bback.module.http.wrapper.ResponseMetadata;
 import bback.module.http.wrapper.RestClientInvoker;
 import org.springframework.lang.Nullable;
+import org.springframework.scheduling.annotation.Async;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -35,26 +37,30 @@ class RestClientProxy<T> implements InvocationHandler {
     }
 
     @Override
+    @Async
     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
         RestClientInvoker invoker = RestClientMapUtils.computeIfAbsent(this.cachedMethod, method, m -> new RestClientInvoker(m, this.httpAgent, this.dataMapper));
+        LogHelper restClientLogger = invoker.getRestClientLogger();
         ResponseMetadata response;
+
         try {
             response = invoker.invoke(args, this.restClient.url());
-            if ( !response.isSuccess() && !invoker.hasFailHandler() ) {
-                throw new RestClientCallException(response.getFailMessage());
-            }
         } catch (RestClientCallException e) {
-            invoker.getRestClientLogger().err(e.getMessage());
+            restClientLogger.err(e.getMessage());
             throw new RestClientCallException();
+        }
+
+        if ( !response.isSuccess() && !invoker.hasFailHandler() ) {
+            throw new RestClientCallException(response.getFailMessage());
         }
 
         Object result = null;
 
         try {
-            result = invoker.getRestReturnValueResolver().resolve(response);
+            result = invoker.getRestReturnResolver().resolve(response);
         } catch (RestClientDataMappingException e) {
-            invoker.getRestClientLogger().err("response :: \n" + response.getStringResponse());
-            invoker.getRestClientLogger().err(e.getMessage());
+            restClientLogger.err("response :: \n" + response.getStringResponse());
+            restClientLogger.err(e.getMessage());
             throw new RestClientCallException();
         }
 

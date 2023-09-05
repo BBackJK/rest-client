@@ -1,21 +1,16 @@
 package bback.module.http.reflector;
 
 import bback.module.http.exceptions.RestClientCommonException;
-import bback.module.http.helper.LogHelper;
 import bback.module.http.wrapper.RestResponse;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 class RequestReturnMetadata {
-    private static final LogHelper LOGGER = LogHelper.of(RequestReturnMetadata.class);
     private final Class<?> returnClass;
     private final Class<?> rawType;
 
@@ -45,21 +40,8 @@ class RequestReturnMetadata {
         }
     }
 
-    public boolean isWrap() {
-        return isWrapList() || isWrapRestResponse() || isDoubleWrap() || isWrapMap() || isWrapOptional();
-    }
-
-    public boolean isWrapList() {
-        return this.isWrapList(this.returnClass);
-    }
-
-    public boolean isWrapList(Class<?> clazz) {
-        if ( clazz == null ) return false;
-        return Arrays.asList(clazz.getInterfaces()).contains(List.class) || clazz.isAssignableFrom(List.class);
-    }
-
-    public boolean isWrapMap() {
-        return Arrays.asList(this.returnClass.getInterfaces()).contains(Map.class) || this.returnClass.isAssignableFrom(Map.class);
+    public boolean isResultWrap() {
+        return isWrapRestResponse() || isWrapOptional() || isWrapCompletableFuture();
     }
 
     public boolean isVoid() {
@@ -76,6 +58,10 @@ class RequestReturnMetadata {
 
     public boolean isWrapRestResponse() {
         return RestResponse.class.equals(this.returnClass);
+    }
+
+    public boolean isWrapCompletableFuture() {
+        return CompletableFuture.class.equals(this.returnClass);
     }
 
     public boolean isDoubleWrap() {

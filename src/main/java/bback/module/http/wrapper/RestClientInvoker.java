@@ -6,19 +6,22 @@ import bback.module.http.helper.LogHelper;
 import bback.module.http.interfaces.HttpAgent;
 import bback.module.http.interfaces.ResponseMapper;
 import bback.module.http.reflector.RequestMethodMetadata;
-import bback.module.http.reflector.ReturnValueResolver;
+import bback.module.http.reflector.RestReturnResolver;
+import bback.module.http.reflector.RestReturnResolverFactory;
 import org.springframework.lang.NonNull;
 
 import java.lang.reflect.Method;
 
 public class RestClientInvoker {
 
-    private final RequestMethodMetadata methodMetadata;
-    private final HttpAgent httpAgent;
-    private final LogHelper restClientLogger;
-
     @NonNull
-    private final ReturnValueResolver restReturnValueResolver;
+    private final RequestMethodMetadata methodMetadata;
+    @NonNull
+    private final HttpAgent httpAgent;
+    @NonNull
+    private final LogHelper restClientLogger;
+    @NonNull
+    private final RestReturnResolver restReturnResolver;
 
     public RestClientInvoker(Method method, HttpAgent httpAgent, ResponseMapper dataMapper) {
         Class<?> restClientInterface = method.getDeclaringClass();
@@ -26,7 +29,7 @@ public class RestClientInvoker {
         this.methodMetadata = new RequestMethodMetadata(method);
         this.httpAgent = httpAgent;
         this.restClientLogger = LogHelper.of(this.getRestClientLogContext(restClientInterface, restClient, method));
-        this.restReturnValueResolver = new ReturnValueResolver(this.methodMetadata, dataMapper);
+        this.restReturnResolver = RestReturnResolverFactory.getResolver(this.methodMetadata, dataMapper);
     }
 
     public ResponseMetadata invoke(Object[] args, String origin) throws RestClientCallException {
@@ -56,11 +59,7 @@ public class RestClientInvoker {
     }
 
     public boolean hasFailHandler() {
-        return this.methodMetadata.isReturnRestResponse() || this.methodMetadata.hasRestCallback() || this.methodMetadata.isReturnOptional();
-    }
-
-    public RequestMethodMetadata getMethodMetadata() {
-        return methodMetadata;
+        return this.methodMetadata.isReturnRestResponse() || this.methodMetadata.hasRestCallback() || this.methodMetadata.isReturnOptional() || this.methodMetadata.isReturnCompletableFuture();
     }
 
     public LogHelper getRestClientLogger() {
@@ -68,8 +67,8 @@ public class RestClientInvoker {
     }
 
     @NonNull
-    public ReturnValueResolver getRestReturnValueResolver() {
-        return restReturnValueResolver;
+    public RestReturnResolver getRestReturnResolver() {
+        return restReturnResolver;
     }
 
     @NonNull

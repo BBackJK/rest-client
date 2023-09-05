@@ -28,13 +28,11 @@ class RequestParamMetadata {
 
     @NonNull
     private final Class<?> paramClass;
-    private final List<String> getterMethodNames;
     private final Annotation annotation;
     private final String paramName;
 
     public RequestParamMetadata(@NonNull Parameter parameter) {
         this.paramClass = parameter.getType();
-        this.getterMethodNames = RestClientReflectorUtils.getGetterFieldNameByClass(this.paramClass);
         this.annotation = this.parseAnnotation(parameter);
         this.paramName = this.parseParamName(parameter);
     }
@@ -96,10 +94,6 @@ class RequestParamMetadata {
 
     public boolean hasAnnotation() {
         return this.annotation != null;
-    }
-
-    public List<String> getGetterMethodNames() {
-        return getterMethodNames;
     }
 
     public String getParamName() {
