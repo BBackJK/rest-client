@@ -7,6 +7,7 @@ version '1.0-SNAPSHOT'
 
 ext {
     lombokVersion = '1.18.28'
+    log4jVersion = '2.20.0'
     slf4jVersion = '1.7.36'
     springCoreVersion = '5.3.29'
     jacksonCoreVersion = '2.13.5'
@@ -20,7 +21,7 @@ repositories {
 
 dependencies {
     // log
-    implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+    compileOnly "org.apache.logging.log4j:log4j-api:${log4jVersion}"
     compileOnly "org.slf4j:slf4j-api:${slf4jVersion}"
 
     // spring
