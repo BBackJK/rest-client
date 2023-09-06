@@ -1,7 +1,7 @@
 package bback.module.http.annotations;
 
 
-import bback.module.spring.AutoConfiguredRestClientScannerRegistrar;
+import bback.module.spring.AnnotatedRestClientAutoConfigurer;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -9,6 +9,6 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(AutoConfiguredRestClientScannerRegistrar.class)
+@Import(AnnotatedRestClientAutoConfigurer.class)
 public @interface EnableRestClient {
 }

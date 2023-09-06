@@ -102,7 +102,6 @@ public class RestClientConnectProperties {
 `RestClientConnectProperties` 는 http agent 에서 사용됩니다.
 
 ```java
-@Component
 public class RestTemplateAgent implements HttpAgent {
 
     private final RestTemplate template;
@@ -125,7 +124,6 @@ public class RestTemplateAgent implements HttpAgent {
     ...
 }
 
-@Component
 public class UnirestHttpAgent implements HttpAgent {
     
     private final UnirestInstance unirest;

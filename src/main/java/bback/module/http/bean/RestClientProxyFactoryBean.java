@@ -14,13 +14,12 @@ public class RestClientProxyFactoryBean<T> implements FactoryBean<T> {
     public RestClientProxyFactoryBean(Class<T> restClientInterface, HttpAgent httpAgent, ResponseMapper dataMapper) {
         this.restClientInterface = restClientInterface;
         this.proxyFactory = new RestClientProxyFactory<>(this.restClientInterface, httpAgent, dataMapper);
+        LOGGER.log("RestClient Bean 이 정상적으로 등록되었습니다. 등록된 Class : " + this.restClientInterface.getName());
     }
 
     @Override
     public T getObject() throws Exception {
-        T object = this.proxyFactory.newInstance();
-        LOGGER.log("RestClient Bean 이 정상적으로 등록되었습니다. 등록된 Class : " + this.restClientInterface.getName());
-        return object;
+        return this.proxyFactory.newInstance();
     }
 
     @Override

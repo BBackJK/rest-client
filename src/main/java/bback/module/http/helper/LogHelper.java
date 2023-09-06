@@ -5,6 +5,7 @@ import bback.module.logger.LogFactory;
 
 public class LogHelper {
     private static final Log LOGGER = LogFactory.getLog(LogHelper.class);
+    private static final String LOG_LEVEL_DEBUG = "DEBUG";
     private static final String LOG_LEVEL_LOG = "LOG";
     private static final String LOG_LEVEL_WARN = "WARN";
     private static final String LOG_LEVEL_ERROR = "ERROR";
@@ -30,12 +31,16 @@ public class LogHelper {
         LOGGER.info(getFormatMessage(message, LOG_LEVEL_LOG));
     }
 
+    public void debug(String message) {
+        LOGGER.debug(getFormatMessage(message, LOG_LEVEL_DEBUG));
+    }
+
     public void warn(String message) {
         LOGGER.warn(getFormatMessage(message, LOG_LEVEL_WARN));
     }
 
     public void err(String message) {
-        LOGGER.warn(getFormatMessage(message, LOG_LEVEL_ERROR));
+        LOGGER.error(getFormatMessage(message, LOG_LEVEL_ERROR));
     }
 
     private String getFormatMessage(String msg, String logLevel) {

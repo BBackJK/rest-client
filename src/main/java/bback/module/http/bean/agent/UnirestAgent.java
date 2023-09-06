@@ -11,21 +11,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kong.unirest.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@Component
-public class UnirestHttpAgent implements HttpAgent {
+public class UnirestAgent implements HttpAgent {
 
     private static final String LOGGING_DELIMITER = "========================================================================================";
     private final UnirestInstance unirest;
     private final ObjectMapper om;
 
-    public UnirestHttpAgent(RestClientConnectProperties connectProperties) {
+    public UnirestAgent(RestClientConnectProperties connectProperties) {
 
         Config config = new Config();
         config.socketTimeout(connectProperties.getSocketTimeout() * 1000)

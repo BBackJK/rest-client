@@ -1,10 +1,9 @@
 package bback.module.http.configuration;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import java.util.Optional;
-@Configuration
+
 public class RestClientConnectProperties {
 
     private static final String PROPERTY_CONNECTION_PREFIX = "bback.http.connect";

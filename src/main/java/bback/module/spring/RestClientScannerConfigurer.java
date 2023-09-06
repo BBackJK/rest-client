@@ -10,31 +10,25 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.lang.NonNull;
-import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 
 class RestClientScannerConfigurer implements InitializingBean, ApplicationContextAware, BeanNameAware, BeanDefinitionRegistryPostProcessor {
-    private static final String MODULE_SCANNING_PACKAGE = "bback.module.http";
-    private String basePackage;
+    private String[] basePackages;
     private Class<? extends Annotation> annotationClass;
     private ApplicationContext applicationContext;
     private String beanName;
 
     @Override // BeanDefinitionRegistryPostProcessor 의 implements
     public void postProcessBeanDefinitionRegistry(@NonNull BeanDefinitionRegistry registry) throws BeansException {
-        ClassPathBeanDefinitionScanner originScanner = new ClassPathBeanDefinitionScanner(registry);
-        originScanner.scan(MODULE_SCANNING_PACKAGE);
         ClassPathRestClientScanner scanner = new ClassPathRestClientScanner(registry);
         scanner.setAnnotationClass(this.annotationClass);
-        scanner.setHttpAgentBeanList(this.applicationContext.getBeanNamesForType(HttpAgent.class));
-        scanner.setResponseMapperBeanDefinitionSet(this.applicationContext.getBeanNamesForType(ResponseMapper.class));
+        scanner.setHttpAgentBeanDefinitions(this.applicationContext.getBeanNamesForType(HttpAgent.class));
+        scanner.setResponseMapperBeanDefinitions(this.applicationContext.getBeanNamesForType(ResponseMapper.class));
         scanner.registerFilters();
-        scanner.scan(StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
+        scanner.scan(basePackages);
     }
 
     @Override
@@ -44,14 +38,14 @@ class RestClientScannerConfigurer implements InitializingBean, ApplicationContex
 
     @Override // InitializingBean 의 implements
     public void afterPropertiesSet() throws Exception {
-        Objects.requireNonNull(this.basePackage, "basePackage 값이 비어 있습니다.");
+        Objects.requireNonNull(this.basePackages, "basePackages 값이 비어 있습니다.");
         Objects.requireNonNull(this.annotationClass, "annotationClass 값이 비어 있습니다.");
         Objects.requireNonNull(this.applicationContext, "applicationContext 값이 비어 있습니다.");
         Objects.requireNonNull(this.beanName, "beanName 값이 비어 있습니다.");
     }
 
-    public void setBasePackage(String basePackage) {
-        this.basePackage = basePackage;
+    public void setBasePackages(String[] basePackages) {
+        this.basePackages = basePackages;
     }
 
     public void setAnnotationClass(Class<? extends Annotation> annotationClass) {

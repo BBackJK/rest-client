@@ -12,7 +12,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientResponseException;
@@ -23,7 +22,6 @@ import java.util.Collections;
 import java.util.Map;
 
 
-@Component
 public class RestTemplateAgent implements HttpAgent {
 
     private static final String LOGGING_DELIMITER = "========================================================================================";
@@ -182,12 +180,11 @@ public class RestTemplateAgent implements HttpAgent {
             logger.log("Request\t\t| Header\t\t\t: EMPTY");
         } else {
             request.getHeaders().forEach((k, listV) -> {
-                String headerKey = k;
                 String headerValue = listV == null ? Collections.emptyList().toString() : listV.toString();
-                if (RestClientUtils.HTTP_HEADER_AUTH_KEY.equals(headerKey)) {
+                if (RestClientUtils.HTTP_HEADER_AUTH_KEY.equals(k)) {
                     headerValue = "[◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼]";
                 }
-                logger.log("Request\t\t| Header\t\t\t: " + headerKey + " - " + headerValue);
+                logger.log("Request\t\t| Header\t\t\t: " + k + " - " + headerValue);
             });
         }
 

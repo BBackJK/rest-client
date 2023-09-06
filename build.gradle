@@ -10,6 +10,7 @@ ext {
     log4jVersion = '2.20.0'
     slf4jVersion = '1.7.36'
     springCoreVersion = '5.3.29'
+    springBootVersion = '2.7.15'
     jacksonCoreVersion = '2.13.5'
     apacheHttpClientVersion = '4.5.14'
     unirestVersion = '3.14.5'
@@ -28,6 +29,7 @@ dependencies {
     compileOnly "org.springframework:spring-core:${springCoreVersion}"
     compileOnly "org.springframework:spring-web:${springCoreVersion}"
     compileOnly "org.springframework:spring-context:${springCoreVersion}"
+    compileOnly "org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}"
 
     // jackson
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonCoreVersion}"

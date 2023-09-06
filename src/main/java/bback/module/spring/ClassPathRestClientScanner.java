@@ -42,7 +42,7 @@ class ClassPathRestClientScanner extends ClassPathBeanDefinitionScanner {
     public void setAnnotationClass(Class<? extends Annotation> annotationClass) {
         this.annotationClass = annotationClass;
     }
-    public void setHttpAgentBeanList(String[] httpAgentBeanNames) {
+    public void setHttpAgentBeanDefinitions(String[] httpAgentBeanNames) {
         Set<BeanDefinition> httpAgentBeanDefinitions = new LinkedHashSet<>();
         if (httpAgentBeanNames != null) {
             for ( String httpAgentBeanName : httpAgentBeanNames ) {
@@ -51,7 +51,7 @@ class ClassPathRestClientScanner extends ClassPathBeanDefinitionScanner {
         }
         this.httpAgentBeanDefinitionSet = httpAgentBeanDefinitions;
     }
-    public void setResponseMapperBeanDefinitionSet(String[] responseMapperBeanNames) {
+    public void setResponseMapperBeanDefinitions(String[] responseMapperBeanNames) {
         Set<BeanDefinition> responseMapperBeanDefinitions = new LinkedHashSet<>();
         if (responseMapperBeanNames != null) {
             for ( String responseMapperBeanName : responseMapperBeanNames ) {
@@ -72,7 +72,7 @@ class ClassPathRestClientScanner extends ClassPathBeanDefinitionScanner {
                 , this.httpAgentBeanDefinitionSet
                 , this.responseMapperBeanDefinitionSet
         );
-        Set<BeanDefinitionHolder> beanDefinitions = this.doCustomScan(basePackage[0]);
+        Set<BeanDefinitionHolder> beanDefinitions = this.doCustomScan(basePackage);
         beanDefinitionProcessor.process(beanDefinitions);
         return beanDefinitions;
     }
@@ -88,39 +88,42 @@ class ClassPathRestClientScanner extends ClassPathBeanDefinitionScanner {
     /**
      * 기존 ClassPathBeanDefinitionScanner 를 참조한 Custom Scan
      */
-    private Set<BeanDefinitionHolder> doCustomScan(String basePackage) {
+    private Set<BeanDefinitionHolder> doCustomScan(String[] basePackages) {
         final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
         final BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
         
         Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
         Assert.notNull(this.registry, "BeanDefinitionRegistry 은 Null 이 될 수 없습니다.");
-        // Filter 에서 걸러진 Class 파일들을 BeanDefinition 으로 만듦.
-        Set<BeanDefinition> beanDefinitionSet = this.customScanCandidateComponents(basePackage);
-        for ( BeanDefinition def : beanDefinitionSet ) {
-            if ( def == null ) continue;
-            // Scope 지정
-            ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(def);
-            def.setScope(scopeMetadata.getScopeName());
-            // beanName parsing
-            String beanName = beanNameGenerator.generateBeanName(def, this.registry);
 
-            if ( def instanceof AbstractBeanDefinition ) {
-                super.postProcessBeanDefinition((AbstractBeanDefinition) def, beanName);
-            }
+        for (String basePackage : basePackages) {
+            // Filter 에서 걸러진 Class 파일들을 BeanDefinition 으로 만듦.
+            Set<BeanDefinition> beanDefinitionSet = this.customScanCandidateComponents(basePackage);
+            for ( BeanDefinition def : beanDefinitionSet ) {
+                if ( def == null ) continue;
+                // Scope 지정
+                ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(def);
+                def.setScope(scopeMetadata.getScopeName());
+                // beanName parsing
+                String beanName = beanNameGenerator.generateBeanName(def, this.registry);
 
-            if ( def instanceof AnnotatedBeanDefinition ) {
-                AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) def);
-            }
+                if ( def instanceof AbstractBeanDefinition ) {
+                    super.postProcessBeanDefinition((AbstractBeanDefinition) def, beanName);
+                }
 
-            // registry 에 이미 등록된 bean definition 인지 확인
-            if ( super.checkCandidate(beanName, def) ) {
-                // BeanDefinitionHolder 생성
-                BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(def, beanName);
-                definitionHolder = RestClientBeanUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, registry);
-                beanDefinitions.add(definitionHolder); // holder 추가
-                if ( definitionHolder != null ) {
-                    // bean definition 등록
-                    super.registerBeanDefinition(definitionHolder, this.registry);
+                if ( def instanceof AnnotatedBeanDefinition ) {
+                    AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) def);
+                }
+
+                // registry 에 이미 등록된 bean definition 인지 확인
+                if ( super.checkCandidate(beanName, def) ) {
+                    // BeanDefinitionHolder 생성
+                    BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(def, beanName);
+                    definitionHolder = RestClientBeanUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, registry);
+                    beanDefinitions.add(definitionHolder); // holder 추가
+                    if ( definitionHolder != null ) {
+                        // bean definition 등록
+                        super.registerBeanDefinition(definitionHolder, this.registry);
+                    }
                 }
             }
         }
@@ -137,7 +140,7 @@ class ClassPathRestClientScanner extends ClassPathBeanDefinitionScanner {
         Set<BeanDefinition> candidates = new LinkedHashSet<>();
 
         String packageSearchPath = this.getPackageSearchPath(basePackage);
-        LOGGER.log("packageSearchPath : " + packageSearchPath);
+        LOGGER.debug("packageSearchPath : " + packageSearchPath);
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory();
 

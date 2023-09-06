@@ -44,7 +44,7 @@ dependencies {
 
 ## 3. How To Use
 
-### 3.1 @EnableRestClient 어노테이션 선언.
+### 3.1 Spring boot 가 아닌 경우
 
 ```java
 @SpringBootApplication
@@ -58,7 +58,13 @@ public class WhateverApplication {
 }
 ```
 
-> 해당 rest-client 모듈은 @SpringBootApplication 어노테이션을 기반으로 @RestClient Interface bean 을 scan 함. *따라서 spring boot 에서만 사용 가능.*
+`@EnableRestClient` 어노테이션으로 해당 어노테이션으로 이루어진 Application Start Point Bean Package 를 찾아서 `@RestClient` 어노테이션을 가진 인터페이스를 Scan 하여 Bean 으로 등록한다.
+
+### 3.2 Spring boot 인 경우
+
+Spring-Boot 는 Auto-Configuration 을 이용하여 `@ComponentScan` 어노테이션을 찾아서 해당 어노테이션이 쓰인 Package , `@ComponentScan`의 `value()`, `basePackages()`, `basePackageClasses()` 속성을 찾아서 package 에서 `@RestClient` 어노테이션을 가진 인터페이스를 Scan 하여 Bean 으로 등록합니다.
+
+> Spring boot 에서 `@EnableRestClient` 어노테이션을 선언하여도 충돌이 일어나지 않습니다.
 
 
 ### 3.2 http client 를 작성할 인터페이스 선언
