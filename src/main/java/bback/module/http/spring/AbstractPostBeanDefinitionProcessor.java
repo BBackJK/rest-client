@@ -1,4 +1,4 @@
-package bback.module.spring;
+package bback.module.http.spring;
 
 import bback.module.http.bean.RestClientProxyFactoryBean;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;

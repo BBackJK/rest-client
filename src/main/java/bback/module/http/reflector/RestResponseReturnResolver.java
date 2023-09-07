@@ -5,7 +5,7 @@ import bback.module.http.interfaces.ResponseMapper;
 import bback.module.http.wrapper.ResponseMetadata;
 import bback.module.http.wrapper.RestResponse;
 
-public class RestResponseReturnResolver extends AbstractRestReturnResolver {
+class RestResponseReturnResolver extends AbstractRestReturnResolver {
 
     public RestResponseReturnResolver(ResponseMapper responseMapper, Class<?> rawType, Class<?> rawWrapType) {
         super(responseMapper, rawType, rawWrapType);

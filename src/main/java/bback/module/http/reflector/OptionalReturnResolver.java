@@ -6,7 +6,7 @@ import bback.module.http.wrapper.ResponseMetadata;
 
 import java.util.Optional;
 
-public class OptionalReturnResolver extends AbstractRestReturnResolver {
+class OptionalReturnResolver extends AbstractRestReturnResolver {
 
     public OptionalReturnResolver(ResponseMapper responseMapper, Class<?> rawType, Class<?> rawWrapType) {
         super(responseMapper, rawType, rawWrapType);

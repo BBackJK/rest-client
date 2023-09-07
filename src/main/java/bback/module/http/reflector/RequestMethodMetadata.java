@@ -26,9 +26,6 @@ public class RequestMethodMetadata {
     private static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile("\\{[a-z|0-9]+}");
     private static final LogHelper LOGGER = LogHelper.of(RequestMethodMetadata.class);
 
-    // Method 어노테이션 :: ALLOWED_REQUEST_MAPPING_ANNOTATIONS 중 하나
-    private final Annotation mappingAnnotation;
-
     // k :: argument 순서, v :: argument 메타데이터 핸들러
     private final Map<Integer, ParameterArgumentHandler> parameterArgumentHandlerMap;
 
@@ -64,13 +61,13 @@ public class RequestMethodMetadata {
     public RequestMethodMetadata(Method method) {
         Class<?> restClientInterface = method.getDeclaringClass();
         Map<Integer, RequestParamMetadata> parameterMetadataMap = RestClientMapUtils.toReadonly(this.getParamMetadataList(method.getParameters()));
-        this.mappingAnnotation = this.parseAnnotation(method);
+        Annotation mappingAnnotation = this.parseAnnotation(method);
         this.hasRequestParamAnnotation = parameterMetadataMap.values().stream().anyMatch(RequestParamMetadata::isAnnotationRequestParam);
         this.emptyAllParameterAnnotation = parameterMetadataMap.values().stream().noneMatch(RequestParamMetadata::hasAnnotation);
         this.restCallbackParameterList = Collections.unmodifiableList(parameterMetadataMap.values().stream().filter(RequestParamMetadata::isRestCallback).collect(Collectors.toList()));
-        this.requestMethod = this.parseRequestMethodByAnnotation(this.mappingAnnotation);
-        this.pathname = this.parsePathNameByAnnotation(this.mappingAnnotation);
-        this.contentType = this.parseContentTypeByAnnotation(this.mappingAnnotation);
+        this.requestMethod = this.parseRequestMethodByAnnotation(mappingAnnotation);
+        this.pathname = this.parsePathNameByAnnotation(mappingAnnotation);
+        this.contentType = this.parseContentTypeByAnnotation(mappingAnnotation);
         this.pathValueNames = this.getPathVariableNames(this.pathname);
         this.returnMetadata = new RequestReturnMetadata(method);
         this.parameterArgumentHandlerMap = parameterMetadataMap
@@ -162,17 +159,17 @@ public class RequestMethodMetadata {
         return this.returnMetadata.isWrapCompletableFuture();
     }
 
-    public boolean isDoubleWrap() {
-        return this.returnMetadata.isDoubleWrap();
+    public boolean isOverWrap() {
+        return this.returnMetadata.isOverWrap();
     }
 
     @Nullable
-    public Class<?> getSecondRawType() {
-        return this.returnMetadata.getSecondRawType();
+    public Class<?> getActualWrapperType() {
+        return this.returnMetadata.getActualWrapperType();
     }
 
-    public Class<?> getRawType() {
-        return this.returnMetadata.getRawType();
+    public Class<?> getActualType() {
+        return this.returnMetadata.getActualType();
     }
 
     public RequestMethod getRequestMethod() {
@@ -304,12 +301,26 @@ public class RequestMethodMetadata {
 
     private void valid(String errorContext, Map<Integer, RequestParamMetadata> parameterMetadataMap) {
         // 1. List 파라미터가 있는 지 확인
+        this.validListArgument(errorContext, parameterMetadataMap);
+
+        // 2. Request Body 수 확인
+        this.validRequestBodyCount(errorContext, parameterMetadataMap);
+
+        // 3. 리턴 파입 기본 생성자 존재 유무 확인
+        this.validHasReturnTypeNoArgsConstructor(errorContext);
+
+        // 4. RestResponse 와 RestCallback 은 같이 사용 X
+        this.validHasRestResponseWithRestCallback(errorContext);
+    }
+
+    private void validListArgument(String errorContext, Map<Integer, RequestParamMetadata> parameterMetadataMap) {
         boolean hasListParameter = parameterMetadataMap.values().stream().anyMatch(RequestParamMetadata::isListType);
         if ( hasListParameter ) {
             throw new RestClientCommonException(String.format("[%s] RestClient 는 List 타입의 파라미터를 지원하지 않습니다.", errorContext));
         }
+    }
 
-        // 2. Request Body 수 확인
+    private void validRequestBodyCount(String errorContext, Map<Integer, RequestParamMetadata> parameterMetadataMap) {
         long requestBodyCount = parameterMetadataMap.values().stream().filter(p -> {
             boolean isRequestHeader = p.isAnnotationRequestHeader();
             boolean isHeaderAuthorization = p.isAnnotationAuthorization();
@@ -319,7 +330,7 @@ public class RequestMethodMetadata {
             return !isRequestHeader && !isPathVariable && !canRequestParam && !isRestCallback && !isHeaderAuthorization;
         }).count();
 
-        // 3. GET, DELETE 인데 requestBody 로 판단되는 파라미터가 1개 이상이라면..
+        // GET, DELETE 인데 requestBody 로 판단되는 파라미터가 1개 이상이라면..
         if ( !this.isCanHasRequestBodyAnnotation() && requestBodyCount > 0 ) {
             StringBuilder errMessage = new StringBuilder(String.format("[%s] RequestBody 를 가질 수 없는 Method 입니다.", errorContext));
             if ( this.isHasPathValue() && !this.pathValueNames.isEmpty() ) {
@@ -333,13 +344,14 @@ public class RequestMethodMetadata {
             throw new RestClientCommonException(errMessage.toString());
         }
 
-        // 4. POST, PUT, DELETE 인데 RequestBody 로 판단되는 파라미터가 1개가 아니라면..
+        // POST, PUT, DELETE 인데 RequestBody 로 판단되는 파라미터가 1개가 아니라면..
         if ( this.isCanHasRequestBodyAnnotation() && ( requestBodyCount != 1 )) {
-                throw new RestClientCommonException(String.format("[%s] POST, PUT, PATCH RequestMethod 는 MediaType 이 application/json 일 경우, RequestBody 1개는 필수 이여야 합니다. RequestBody 수 %d", errorContext, requestBodyCount));
+            throw new RestClientCommonException(String.format("[%s] POST, PUT, PATCH RequestMethod 는 MediaType 이 application/json 일 경우, RequestBody 1개는 필수 이여야 합니다. RequestBody 수 %d", errorContext, requestBodyCount));
         }
+    }
 
-        // 5. 리턴 파입 기본 생성자 추출
-        Class<?> returnRawType = this.returnMetadata.getRawType();
+    private void validHasReturnTypeNoArgsConstructor(String errorContext) {
+        Class<?> returnRawType = this.returnMetadata.getActualType();
         if ( !returnRawType.isInterface() && !this.returnMetadata.isVoid() && !RestClientClassUtils.isPrimitiveOrString(returnRawType) ) {
             try {
                 returnRawType.getConstructor();
@@ -347,8 +359,9 @@ public class RequestMethodMetadata {
                 throw new RestClientCommonException(String.format("[%s] 리턴 타입 %s 는 기본 생성자가 있어야 ResponseMapper 로 변환 가능 합니다.", errorContext, returnRawType.getSimpleName()));
             }
         }
+    }
 
-        // 6. RestResponse 와 RestCallback 은 같이 사용 X
+    private void validHasRestResponseWithRestCallback(String errorContext) {
         if (this.returnMetadata.isWrapRestResponse() && !this.restCallbackParameterList.isEmpty()) {
             throw new RestClientCommonException(String.format("[%s] RestClient 는 Return RestResponse 와 Argument RestCallback 의 중복 사용을 지원하지 않습니다.", errorContext));
         }

@@ -6,7 +6,7 @@ import bback.module.http.wrapper.ResponseMetadata;
 
 import java.util.concurrent.CompletableFuture;
 
-public class CompletableFutureReturnResolver extends AbstractRestReturnResolver {
+class CompletableFutureReturnResolver extends AbstractRestReturnResolver {
 
     public CompletableFutureReturnResolver(ResponseMapper responseMapper, Class<?> rawType, Class<?> rawWrapType) {
         super(responseMapper, rawType, rawWrapType);

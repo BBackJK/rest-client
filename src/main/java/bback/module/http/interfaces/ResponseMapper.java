@@ -6,7 +6,7 @@ public interface ResponseMapper {
 
     <T> T convert(String value, Class<T> clazz) throws RestClientDataMappingException;
 
-    <T,E> T convert(String value, Class<T> genericClass, Class<E> rawClass) throws RestClientDataMappingException;
+    <T, E> T convert(String value, Class<T> genericClass, Class<E> rawClass) throws RestClientDataMappingException;
 
     <T, E> E convert(T value, Class<E> clazz) throws RestClientDataMappingException;
 

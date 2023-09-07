@@ -146,7 +146,7 @@ public class UnirestAgent implements HttpAgent {
                         ? requestBuilder
                         : requestBuilder.fields(map);
             } catch (IllegalArgumentException e) {
-                logger.warn("x-www-form-urlencoded 의 form data 가 Map 으로 변환되는데에 에러가 발생하였습니다. body :: " + body);
+                logger.warn("x-www-form-urlencoded 의 form data 가 Map 으로 변환을 시도하다 에러가 발생하였습니다. body :: " + body);
                 logger.warn(e.getMessage());
                 return requestBuilder.body(body);
             }

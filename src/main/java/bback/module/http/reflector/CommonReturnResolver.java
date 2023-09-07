@@ -4,7 +4,7 @@ import bback.module.http.exceptions.RestClientDataMappingException;
 import bback.module.http.interfaces.ResponseMapper;
 import bback.module.http.wrapper.ResponseMetadata;
 
-public class CommonReturnResolver extends AbstractRestReturnResolver {
+class CommonReturnResolver extends AbstractRestReturnResolver {
 
     protected CommonReturnResolver(ResponseMapper responseMapper, Class<?> rawType, Class<?> rawWrapType) {
         super(responseMapper, rawType, rawWrapType);

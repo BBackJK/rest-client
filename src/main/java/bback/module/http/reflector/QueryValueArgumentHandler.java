@@ -1,9 +1,8 @@
 package bback.module.http.reflector;
 
 import bback.module.http.exceptions.RestClientCallException;
-import bback.module.http.util.RestClientReflectorUtils;
+import bback.module.http.helper.GetFieldInvoker;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -31,17 +30,9 @@ class QueryValueArgumentHandler implements ParameterArgumentHandler {
                 Map<?, ?> map = (Map<?, ?>) o;
                 map.forEach((k, v) -> preset.set(String.valueOf(k), v == null ? null : String.valueOf(v)));
             } else if (this.metadata.isReferenceType()) {
-                List<Field> fields = RestClientReflectorUtils.filterLocalFields(o.getClass());
-                for (Field f : fields) {
-                    f.setAccessible(true);
-                    try {
-                        Object v = f.get(o);
-                        if (v != null) {
-                            preset.set(f.getName(), String.valueOf(v));
-                        }
-                    }  catch (IllegalAccessException e) {
-                        // ignore ...
-                    }
+                List<GetFieldInvoker> fieldInvokerList = this.metadata.getFieldInvokerList();
+                for (GetFieldInvoker invoker : fieldInvokerList) {
+                    invoker.invokeWrapper(o).ifPresent(value -> preset.set(invoker.getFieldName(), String.valueOf(value)));
                 }
             } else {
                 preset.set(metadata.getParamName(), String.valueOf(o));

@@ -1,7 +1,7 @@
 package bback.module.http.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import bback.module.logger.Log;
+import bback.module.logger.LogFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public final class RestClientReflectorUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestClientReflectorUtils.class);
+    private static final Log LOGGER = LogFactory.getLog(RestClientReflectorUtils.class);
 
     private RestClientReflectorUtils() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
