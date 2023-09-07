@@ -20,7 +20,7 @@
 <dependency>
     <groupId>com.github.BBackJK</groupId>
     <artifactId>rest-client</artifactId>
-    <version>v0.1.2</version>
+    <version>v0.1.3</version>
 </dependency>
 ...
 ```
@@ -37,7 +37,7 @@ allprojects {
 }
 ...
 dependencies {
-    implementation 'com.github.BBackJK:rest-client:v0.1.2'
+    implementation 'com.github.BBackJK:rest-client:v0.1.3'
 }
 ...
 ```

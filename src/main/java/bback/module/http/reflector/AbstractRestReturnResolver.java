@@ -7,6 +7,9 @@ import bback.module.http.util.RestClientObjectUtils;
 import bback.module.http.wrapper.ResponseMetadata;
 import org.springframework.lang.Nullable;
 
+import java.util.Arrays;
+import java.util.Map;
+
 abstract class AbstractRestReturnResolver implements RestReturnResolver {
 
     protected final ResponseMapper responseMapper;
@@ -32,7 +35,11 @@ abstract class AbstractRestReturnResolver implements RestReturnResolver {
             result = this.responseMapper.toXml(responseValue, this.actualType);
         } else {
             if ( this.actualWrapperType != null ) {
-                result = this.responseMapper.convert(responseValue, this.actualWrapperType, this.actualType);
+                if ( this.isReturnMap() ) {
+                    result = this.responseMapper.convert(responseValue, Map.class);
+                } else {
+                    result = this.responseMapper.convert(responseValue, this.actualWrapperType, this.actualType);
+                }
             } else {
                 if ( this.isReturnString() ) {
                     result = responseValue;
@@ -51,5 +58,11 @@ abstract class AbstractRestReturnResolver implements RestReturnResolver {
 
     protected boolean isReturnVoid() {
         return void.class.equals(this.actualType) || Void.class.equals(this.actualType);
+    }
+
+    protected boolean isReturnMap() {
+        return this.actualWrapperType != null
+            && (Arrays.asList(this.actualWrapperType.getInterfaces()).contains(Map.class)
+                || this.actualWrapperType.isAssignableFrom(Map.class));
     }
 }
