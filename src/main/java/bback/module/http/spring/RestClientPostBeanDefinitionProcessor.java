@@ -1,4 +1,4 @@
-package bback.module.spring;
+package bback.module.http.spring;
 
 import bback.module.http.annotations.RestClient;
 import bback.module.http.bean.agent.RestTemplateAgent;
@@ -85,20 +85,19 @@ public class RestClientPostBeanDefinitionProcessor extends AbstractPostBeanDefin
      * HttpAgent 로 이루어진 BeanDefinition 중 해당 RestClient 의 설정으로 설정한 class 와 일치하는 httpAgent 를 가져온다. 없으면 defaultHttpAgent
      */
     private BeanDefinition findHttpAgentBeanDefinition(String restClientBeanClassName) {
-        Class<? extends HttpAgent> httpAgentClass = RestTemplateAgent.class;
+        Class<? extends HttpAgent> defaultHttpAgentClass = RestTemplateAgent.class;
         try {
             RestClient restClient = this.getRestClientAnnotation(restClientBeanClassName);
             if ( restClient != null ) {
-                httpAgentClass = restClient.agent();
+                defaultHttpAgentClass = restClient.agent();
             }
         } catch (ClassNotFoundException e) {
             LOGGER.err(e.getMessage());
-            // ignore..
         }
 
         BeanDefinition result = this.defaultHttpAgentBeanDefinition;
         for (BeanDefinition def : this.httpAgentBeanDefinitions) {
-            if (def != null && httpAgentClass.getName().equals(def.getBeanClassName())) {
+            if (def != null && defaultHttpAgentClass.getName().equals(def.getBeanClassName())) {
                 result = def;
                 break;
             }
@@ -110,11 +109,11 @@ public class RestClientPostBeanDefinitionProcessor extends AbstractPostBeanDefin
      * ResponseMapper 로 이루어진 BeanDefinition 중 해당 RestClient 의 설정으로 설정한 class 와 일치하는 ResponseMapper 를 가져온다. 없으면 defaultResponseMapper
      */
     private BeanDefinition findResponseMapperBeanDefinition(String restClientBeanClassName) {
-        Class<? extends ResponseMapper> responseMapperClass = DefaultResponseMapper.class;
+        Class<? extends ResponseMapper> defaultResponseMapperClass = DefaultResponseMapper.class;
         try {
             RestClient restClient = this.getRestClientAnnotation(restClientBeanClassName);
             if ( restClient != null ) {
-                responseMapperClass = restClient.mapper();
+                defaultResponseMapperClass = restClient.mapper();
             }
         } catch (ClassNotFoundException e) {
             LOGGER.err(e.getMessage());
@@ -123,7 +122,7 @@ public class RestClientPostBeanDefinitionProcessor extends AbstractPostBeanDefin
 
         BeanDefinition result = this.defaultResponseMapperBeanDefinition;
         for (BeanDefinition def : this.responseMapperBeanDefinitions) {
-            if (def != null && responseMapperClass.getName().equals(def.getBeanClassName())) {
+            if (def != null && defaultResponseMapperClass.getName().equals(def.getBeanClassName())) {
                 result = def;
                 break;
             }

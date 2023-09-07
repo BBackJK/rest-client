@@ -1,6 +1,7 @@
 package bback.module.http.reflector;
 
 import bback.module.http.annotations.Authorization;
+import bback.module.http.helper.GetFieldInvoker;
 import bback.module.http.interfaces.RestCallback;
 import bback.module.http.util.RestClientClassUtils;
 import bback.module.http.util.RestClientReflectorUtils;
@@ -13,11 +14,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,11 +27,13 @@ class RequestParamMetadata {
 
     @NonNull
     private final Class<?> paramClass;
+    private final List<GetFieldInvoker> fieldInvokerList;
     private final Annotation annotation;
     private final String paramName;
 
     public RequestParamMetadata(@NonNull Parameter parameter) {
         this.paramClass = parameter.getType();
+        this.fieldInvokerList = this.parseFieldInvoker(parameter);
         this.annotation = this.parseAnnotation(parameter);
         this.paramName = this.parseParamName(parameter);
     }
@@ -100,6 +101,10 @@ class RequestParamMetadata {
         return this.paramName;
     }
 
+    public List<GetFieldInvoker> getFieldInvokerList() {
+        return this.fieldInvokerList;
+    }
+
     @Nullable
     private Annotation parseAnnotation(Parameter parameter) {
         for (Class<? extends Annotation> s : ALLOWED_PARAMETER_SPRING_ANNOTATIONS) {
@@ -136,5 +141,17 @@ class RequestParamMetadata {
             result = value;
         }
         return result == null ? parameter.getName() : result;
+    }
+
+    private List<GetFieldInvoker> parseFieldInvoker(Parameter parameter) {
+        if ( !this.isReferenceType() ) return Collections.emptyList();
+        List<GetFieldInvoker> result = new ArrayList<>();
+        List<Field> fields = RestClientReflectorUtils.filterLocalFields(parameter.getType());
+        for (Field field : fields) {
+            result.add(
+                    new GetFieldInvoker(field)
+            );
+        }
+        return result;
     }
 }

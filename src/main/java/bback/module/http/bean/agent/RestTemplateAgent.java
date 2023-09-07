@@ -70,15 +70,7 @@ public class RestTemplateAgent implements HttpAgent {
     }
 
     private ResponseMetadata doCall(RequestMetadata requestMetadata, HttpMethod httpMethod) {
-        UriComponentsBuilder requestBuilder = UriComponentsBuilder.fromHttpUrl(this.handleUrl(requestMetadata.getUrl(), requestMetadata.getPathValuesMap()));
-        this.handleQueryParameter(requestBuilder, requestMetadata.getQueryValuesMap());
-        RequestEntity<?> requestEntity = new RequestEntity<>(
-                this.handleBody(requestMetadata.getBodyData(), requestMetadata.isFormContent(), requestMetadata.getRestClientLogger())
-                , this.handleHeader(requestMetadata.getHeaderValuesMap(), requestMetadata.getContentType())
-                , httpMethod
-                , requestBuilder.build().toUri()
-                , String.class
-        );
+        RequestEntity<?> requestEntity = this.getRequestEntity(requestMetadata, httpMethod);
         this.requestLogging(requestEntity, requestMetadata.getRestClientLogger());
         long requestAt = System.currentTimeMillis();
         try {
@@ -106,6 +98,18 @@ public class RestTemplateAgent implements HttpAgent {
                     , contentType
             );
         }
+    }
+
+    private RequestEntity<?> getRequestEntity(RequestMetadata requestMetadata, HttpMethod httpMethod) {
+        UriComponentsBuilder requestBuilder = UriComponentsBuilder.fromHttpUrl(this.handleUrl(requestMetadata.getUrl(), requestMetadata.getPathValuesMap()));
+        this.handleQueryParameter(requestBuilder, requestMetadata.getQueryValuesMap());
+        return new RequestEntity<>(
+                this.handleBody(requestMetadata.getBodyData(), requestMetadata.isFormContent(), requestMetadata.getRestClientLogger())
+                , this.handleHeader(requestMetadata.getHeaderValuesMap(), requestMetadata.getContentType())
+                , httpMethod
+                , requestBuilder.build().toUri()
+                , String.class
+        );
     }
 
     private String handleUrl(String requestUrl, Map<String, String> pathValues) {

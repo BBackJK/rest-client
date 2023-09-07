@@ -1,4 +1,4 @@
-package bback.module.spring;
+package bback.module.http.spring;
 
 import bback.module.http.annotations.EnableRestClient;
 import bback.module.http.annotations.RestClient;
@@ -99,7 +99,7 @@ public class RestClientBeanScannerRegistrar implements BeanFactoryAware, ImportB
             return basePackageSet.toArray(new String[0]);
         } catch (Exception e) {
             LOGGER.err(e.getMessage());
-            throw new RestClientCommonException("EnableRestClient 어노테이션클래스를 찾는데 실패하였습니다.");
+            throw new RestClientCommonException("scan 할 basePackage 를 찾는데에 실패하였습니다.");
         }
     }
 }

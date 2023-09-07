@@ -14,24 +14,24 @@ public final class RestReturnResolverFactory {
             if (restClientMethod.isReturnRestResponse()) {
                 return new RestResponseReturnResolver(
                         dataMapper
-                        , restClientMethod.getRawType()
-                        , restClientMethod.isDoubleWrap() ? restClientMethod.getSecondRawType() : null
+                        , restClientMethod.getActualType()
+                        , restClientMethod.isOverWrap() ? restClientMethod.getActualWrapperType() : null
                 );
             } else if (restClientMethod.isReturnOptional()) {
                 return new OptionalReturnResolver(
                         dataMapper
-                        , restClientMethod.getRawType()
-                        , restClientMethod.isDoubleWrap() ? restClientMethod.getSecondRawType() : null
+                        , restClientMethod.getActualType()
+                        , restClientMethod.isOverWrap() ? restClientMethod.getActualWrapperType() : null
                 );
             } else {
                 return new CompletableFutureReturnResolver(
                         dataMapper
-                        , restClientMethod.getRawType()
-                        , restClientMethod.isDoubleWrap() ? restClientMethod.getSecondRawType() : null
+                        , restClientMethod.getActualType()
+                        , restClientMethod.isOverWrap() ? restClientMethod.getActualWrapperType() : null
                 );
             }
         } else {
-            return new CommonReturnResolver(dataMapper, restClientMethod.getRawType(), restClientMethod.getSecondRawType());
+            return new CommonReturnResolver(dataMapper, restClientMethod.getActualType(), restClientMethod.getActualWrapperType());
         }
     }
 }

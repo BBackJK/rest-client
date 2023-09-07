@@ -1,4 +1,4 @@
-package bback.module.spring;
+package bback.module.http.spring;
 
 import bback.module.http.exceptions.RestClientCommonException;
 import bback.module.http.helper.LogHelper;

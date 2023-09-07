@@ -5,23 +5,19 @@ import bback.module.http.interfaces.ResponseMapper;
 import bback.module.http.util.RestClientClassUtils;
 import bback.module.http.util.RestClientObjectUtils;
 import bback.module.http.wrapper.ResponseMetadata;
-import bback.module.http.wrapper.RestResponse;
 import org.springframework.lang.Nullable;
 
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-
-public abstract class AbstractRestReturnResolver implements RestReturnResolver {
+abstract class AbstractRestReturnResolver implements RestReturnResolver {
 
     protected final ResponseMapper responseMapper;
-    protected final Class<?> rawType;
+    protected final Class<?> actualType;
     @Nullable
-    protected final Class<?> rawWrapType;
+    protected final Class<?> actualWrapperType;
 
-    protected AbstractRestReturnResolver(ResponseMapper responseMapper, Class<?> rawType, Class<?> rawWrapType) {
+    protected AbstractRestReturnResolver(ResponseMapper responseMapper, Class<?> actualType, Class<?> actualWrapperType) {
         this.responseMapper = responseMapper;
-        this.rawType = rawType;
-        this.rawWrapType = rawWrapType;
+        this.actualType = actualType;
+        this.actualWrapperType = actualWrapperType;
     }
 
     protected abstract Object doWrapping(Object result, ResponseMetadata responseMetadata) throws RestClientDataMappingException;
@@ -31,17 +27,17 @@ public abstract class AbstractRestReturnResolver implements RestReturnResolver {
         Object result = null;
         String responseValue = response.getStringResponse();
         if ( RestClientObjectUtils.isEmpty(responseValue) ) {
-            result = RestClientClassUtils.getTypeInitValue(this.rawType);
+            result = RestClientClassUtils.getTypeInitValue(this.actualType);
         } else if (response.isXml()) {
-            result = this.responseMapper.toXml(responseValue, this.rawType);
+            result = this.responseMapper.toXml(responseValue, this.actualType);
         } else {
-            if ( this.rawWrapType != null ) {
-                result = this.responseMapper.convert(responseValue, this.rawWrapType, this.rawType);
+            if ( this.actualWrapperType != null ) {
+                result = this.responseMapper.convert(responseValue, this.actualWrapperType, this.actualType);
             } else {
                 if ( this.isReturnString() ) {
                     result = responseValue;
                 } else if ( !this.isReturnVoid() ) {
-                    result = this.responseMapper.convert(responseValue, this.rawType);
+                    result = this.responseMapper.convert(responseValue, this.actualType);
                 }
             }
         }
@@ -50,19 +46,10 @@ public abstract class AbstractRestReturnResolver implements RestReturnResolver {
     }
 
     protected boolean isReturnString() {
-        return String.class.equals(this.rawType);
+        return String.class.equals(this.actualType);
     }
 
     protected boolean isReturnVoid() {
-        return void.class.equals(this.rawType) || Void.class.equals(this.rawType);
-    }
-
-    protected boolean isResultWrapper() {
-        return this.rawWrapType != null
-                && (
-                        RestResponse.class.equals(this.rawWrapType)
-                        || Optional.class.equals(this.rawWrapType)
-                        || CompletableFuture.class.equals(this.rawWrapType)
-                );
+        return void.class.equals(this.actualType) || Void.class.equals(this.actualType);
     }
 }
