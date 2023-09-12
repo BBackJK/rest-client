@@ -8,30 +8,30 @@ public final class RestReturnResolverFactory {
         throw new UnsupportedOperationException("This is a factory class and cannot be instantiated");
     }
 
-    public static RestReturnResolver getResolver(RequestMethodMetadata restClientMethod, ResponseMapper dataMapper) {
+    public static RestReturnResolver getResolver(RequestMethodMetadata requestMethodMetadata, ResponseMapper dataMapper) {
 
-        if (restClientMethod.isReturnResultWrap()) {
-            if (restClientMethod.isReturnRestResponse()) {
+        if (requestMethodMetadata.isReturnResultWrap()) {
+            if (requestMethodMetadata.isReturnRestResponse()) {
                 return new RestResponseReturnResolver(
                         dataMapper
-                        , restClientMethod.getActualType()
-                        , restClientMethod.isOverWrap() ? restClientMethod.getActualWrapperType() : null
+                        , requestMethodMetadata.getActualType()
+                        , requestMethodMetadata.isOverWrap() ? requestMethodMetadata.getActualWrapperType() : null
                 );
-            } else if (restClientMethod.isReturnOptional()) {
+            } else if (requestMethodMetadata.isReturnOptional()) {
                 return new OptionalReturnResolver(
                         dataMapper
-                        , restClientMethod.getActualType()
-                        , restClientMethod.isOverWrap() ? restClientMethod.getActualWrapperType() : null
+                        , requestMethodMetadata.getActualType()
+                        , requestMethodMetadata.isOverWrap() ? requestMethodMetadata.getActualWrapperType() : null
                 );
             } else {
                 return new CompletableFutureReturnResolver(
                         dataMapper
-                        , restClientMethod.getActualType()
-                        , restClientMethod.isOverWrap() ? restClientMethod.getActualWrapperType() : null
+                        , requestMethodMetadata.getActualType()
+                        , requestMethodMetadata.isOverWrap() ? requestMethodMetadata.getActualWrapperType() : null
                 );
             }
         } else {
-            return new CommonReturnResolver(dataMapper, restClientMethod.getActualType(), restClientMethod.getActualWrapperType());
+            return new CommonReturnResolver(dataMapper, requestMethodMetadata.getActualType(), requestMethodMetadata.getActualWrapperType());
         }
     }
 }

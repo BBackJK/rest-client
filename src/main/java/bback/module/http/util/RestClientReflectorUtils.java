@@ -26,7 +26,11 @@ public final class RestClientReflectorUtils {
     }
 
     @Nullable
-    public static Object annotationMethodInvoke(Annotation target, String invokeMethodName, Object[] args) {
+    public static Object annotationMethodInvoke(
+            @NonNull Annotation target
+            , @NonNull String invokeMethodName
+            , @Nullable Object[] args
+    ) {
         Class<? extends Annotation> annotationClazz = target.annotationType();
         try {
             return args == null || args.length == 0
