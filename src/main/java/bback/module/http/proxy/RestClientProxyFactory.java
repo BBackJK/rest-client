@@ -2,7 +2,7 @@ package bback.module.http.proxy;
 
 import bback.module.http.interfaces.HttpAgent;
 import bback.module.http.interfaces.ResponseMapper;
-import bback.module.http.wrapper.RestClientInvoker;
+import bback.module.http.wrapper.RestClientMethodInvoker;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RestClientProxyFactory<T> {
 
-    private final Map<Method, RestClientInvoker> cachedMethod = new ConcurrentHashMap<>();
+    private final Map<Method, RestClientMethodInvoker> cachedMethod = new ConcurrentHashMap<>();
     private final Class<T> restClientInterface;
     private final HttpAgent httpAgent;
     private final ResponseMapper dataMapper;
@@ -26,7 +26,7 @@ public class RestClientProxyFactory<T> {
         return this.restClientInterface;
     }
 
-    public Map<Method, RestClientInvoker> getCachedMethod() {
+    public Map<Method, RestClientMethodInvoker> getCachedMethod() {
         return this.cachedMethod;
     }
 

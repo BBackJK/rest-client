@@ -77,6 +77,10 @@ public final class RestClientClassUtils {
         throw new ClassNotFoundException("Cannot find class: " + name);
     }
 
+    public static boolean isVoid(Class<?> classType) {
+        return void.class.equals(classType) || Void.class.equals(classType);
+    }
+
     private static List<File> getAllResourceFile(String resourcePath) throws IOException {
         List<File> files = new ArrayList<>();
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

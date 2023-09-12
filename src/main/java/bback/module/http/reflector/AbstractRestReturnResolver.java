@@ -12,13 +12,13 @@ import java.util.Map;
 
 abstract class AbstractRestReturnResolver implements RestReturnResolver {
 
-    protected final ResponseMapper responseMapper;
+    protected final ResponseMapper dataMapper;
     protected final Class<?> actualType;
     @Nullable
     protected final Class<?> actualWrapperType;
 
-    protected AbstractRestReturnResolver(ResponseMapper responseMapper, Class<?> actualType, Class<?> actualWrapperType) {
-        this.responseMapper = responseMapper;
+    protected AbstractRestReturnResolver(ResponseMapper dataMapper, Class<?> actualType, Class<?> actualWrapperType) {
+        this.dataMapper = dataMapper;
         this.actualType = actualType;
         this.actualWrapperType = actualWrapperType;
     }
@@ -32,19 +32,19 @@ abstract class AbstractRestReturnResolver implements RestReturnResolver {
         if ( RestClientObjectUtils.isEmpty(responseValue) ) {
             result = RestClientClassUtils.getTypeInitValue(this.actualType);
         } else if (response.isXml()) {
-            result = this.responseMapper.toXml(responseValue, this.actualType);
+            result = this.dataMapper.toXml(responseValue, this.actualType);
         } else {
             if ( this.actualWrapperType != null ) {
                 if ( this.isReturnMap() ) {
-                    result = this.responseMapper.convert(responseValue, Map.class);
+                    result = this.dataMapper.convert(responseValue, Map.class);
                 } else {
-                    result = this.responseMapper.convert(responseValue, this.actualWrapperType, this.actualType);
+                    result = this.dataMapper.convert(responseValue, this.actualWrapperType, this.actualType);
                 }
             } else {
                 if ( this.isReturnString() ) {
                     result = responseValue;
                 } else if ( !this.isReturnVoid() ) {
-                    result = this.responseMapper.convert(responseValue, this.actualType);
+                    result = this.dataMapper.convert(responseValue, this.actualType);
                 }
             }
         }
@@ -57,7 +57,7 @@ abstract class AbstractRestReturnResolver implements RestReturnResolver {
     }
 
     protected boolean isReturnVoid() {
-        return void.class.equals(this.actualType) || Void.class.equals(this.actualType);
+        return RestClientClassUtils.isVoid(this.actualType);
     }
 
     protected boolean isReturnMap() {

@@ -39,38 +39,58 @@ class RequestReturnMetadata {
         }
     }
 
+    /**
+     * 결과를 Wrapping 하는 Return 타입인지
+     * @return 결과를 Wrapping 하는 Return 여부
+     */
     public boolean isResultWrap() {
         return isWrapRestResponse() || isWrapOptional() || isWrapCompletableFuture();
     }
 
-    public boolean isVoid() {
-        return void.class.equals(this.returnRawType) || Void.class.equals(this.returnRawType);
-    }
-
+    /**
+     * Return type 이 Optional 인지 여부를 판단.
+     * @return Return type 이 Optional 인지 여부
+     */
     public boolean isWrapOptional() {
         return Optional.class.equals(this.returnRawType);
     }
 
-    public boolean isString() {
-        return String.class.equals(this.returnRawType);
-    }
-
+    /**
+     * Return type 이 RestResponse 인지 여부를 판단.
+     * @return Return type 이 RestResponse 인지 여부
+     */
     public boolean isWrapRestResponse() {
         return RestResponse.class.equals(this.returnRawType);
     }
 
+    /**
+     * Return type 이 CompletableFuture 인지 여부를 판단.
+     * @return Return type 이 CompletableFuture 인지 여부
+     */
     public boolean isWrapCompletableFuture() {
         return CompletableFuture.class.equals(this.returnRawType);
     }
 
+    /**
+     * 2번이상 Wrapping 되어있는지 여부를 판단.
+     * @return 2번이상 Wrapping 되어있는지 여부
+     */
     public boolean isOverWrap() {
         return this.actualWrapperType != null && !this.actualWrapperType.equals(this.returnRawType);
     }
 
+    /**
+     * 실제 Return Generic Type 을 반환
+     * @return Return Generic Type
+     */
     public Class<?> getActualType() {
         return this.actualType;
     }
 
+    /**
+     * 실제 Return Generic Type 을 감싸고 있는 Wrapping Type 반환
+     * @return Return Generic Type 을 감싸고 있는 Wrapping Type
+     */
     @Nullable
     public Class<?> getActualWrapperType() {
         return this.actualWrapperType;
