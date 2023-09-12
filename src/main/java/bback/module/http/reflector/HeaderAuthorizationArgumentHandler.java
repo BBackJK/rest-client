@@ -22,4 +22,24 @@ class HeaderAuthorizationArgumentHandler implements ParameterArgumentHandler {
             preset.set(this.metadata.getParamName(), onPrefix ? String.format("%s %s", type, o) : String.valueOf(o));
         });
     }
+
+    @Override
+    public boolean isHeaderHandler() {
+        return true;
+    }
+
+    @Override
+    public boolean isPathHandler() {
+        return false;
+    }
+
+    @Override
+    public boolean isQueryHandler() {
+        return false;
+    }
+
+    @Override
+    public boolean isBodyHandler() {
+        return false;
+    }
 }

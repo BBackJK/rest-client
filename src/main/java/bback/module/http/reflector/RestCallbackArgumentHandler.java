@@ -8,4 +8,24 @@ class RestCallbackArgumentHandler implements ParameterArgumentHandler {
     public void handle(ArgumentPresetMetadata<?> preset, Optional<Object> arg) {
         // ignore
     }
+
+    @Override
+    public boolean isHeaderHandler() {
+        return false;
+    }
+
+    @Override
+    public boolean isPathHandler() {
+        return false;
+    }
+
+    @Override
+    public boolean isQueryHandler() {
+        return false;
+    }
+
+    @Override
+    public boolean isBodyHandler() {
+        return false;
+    }
 }

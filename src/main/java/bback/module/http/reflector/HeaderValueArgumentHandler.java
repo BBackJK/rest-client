@@ -14,4 +14,24 @@ class HeaderValueArgumentHandler implements ParameterArgumentHandler {
     public void handle(ArgumentPresetMetadata<?> preset, Optional<Object> arg) {
         arg.ifPresent(o -> preset.set(this.metadata.getParamName(), String.valueOf(o)));
     }
+
+    @Override
+    public boolean isHeaderHandler() {
+        return true;
+    }
+
+    @Override
+    public boolean isPathHandler() {
+        return false;
+    }
+
+    @Override
+    public boolean isQueryHandler() {
+        return false;
+    }
+
+    @Override
+    public boolean isBodyHandler() {
+        return false;
+    }
 }
