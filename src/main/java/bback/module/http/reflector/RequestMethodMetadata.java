@@ -140,14 +140,13 @@ public class RequestMethodMetadata {
             Optional<Object> arg = Optional.ofNullable(args[i]);
             ParameterArgumentHandler handler = this.sortedParameterArgumentHandlers.get(i);
             if ( handler != null ) {
-                Class<? extends ParameterArgumentHandler> handlerType = handler.getClass();
-                if (handlerType.equals(HeaderValueArgumentHandler.class) || handlerType.equals(HeaderAuthorizationArgumentHandler.class)) {
+                if (handler.isHeaderHandler()) {
                     handler.handle(headerValuePreset, arg);
-                } else if (handlerType.equals(PathValueArgumentHandler.class)) {
+                } else if (handler.isPathHandler()) {
                     handler.handle(pathValuePreset, arg);
-                } else if (handlerType.equals(QueryValueArgumentHandler.class)) {
+                } else if (handler.isQueryHandler()) {
                     handler.handle(queryValuePreset, arg);
-                } else if (handlerType.equals(BodyDataArgumentHandler.class)) {
+                } else if (handler.isBodyHandler()) {
                     bodyCount++;
                     handler.handle(bodyValuePreset, arg);
                 }

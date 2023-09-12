@@ -39,4 +39,24 @@ class QueryValueArgumentHandler implements ParameterArgumentHandler {
             }
         });
     }
+
+    @Override
+    public boolean isHeaderHandler() {
+        return false;
+    }
+
+    @Override
+    public boolean isPathHandler() {
+        return false;
+    }
+
+    @Override
+    public boolean isQueryHandler() {
+        return true;
+    }
+
+    @Override
+    public boolean isBodyHandler() {
+        return false;
+    }
 }

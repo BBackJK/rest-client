@@ -67,7 +67,7 @@ Spring-Boot 는 Auto-Configuration 을 이용하여 `@ComponentScan` 어노테�
 > Spring boot 에서 `@EnableRestClient` 어노테이션을 선언하여도 충돌이 일어나지 않습니다.
 
 
-### 3.2 http client 를 작성할 인터페이스 선언
+### 3.3 http client 를 작성할 인터페이스 선언
 
 ```java
 // 예시 1. 카카오 Rest Api 호출
@@ -85,7 +85,7 @@ public interface KakaoClient {
 }
 ```
 
-### 3.3 Bean 에서 호출
+### 3.4 Bean 에서 호출
 
 ```java
 @Controller
@@ -140,6 +140,6 @@ public class KakaoController {
 
 ```
 
-## 4. Document
+## 5. Document
 
 [Document](https://github.com/BBackJK/rest-client/tree/main/document)
